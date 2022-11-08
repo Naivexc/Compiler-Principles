@@ -1,8 +1,0 @@
-fun @main(): i32
-{
-  %entry:
-    %0 = ne 1, 0
-    %1 = ne 2, 0
-    %2 = and %1, %0
-    ret %2
-}

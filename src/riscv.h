@@ -1,3 +1,4 @@
+#include "koopa.h"
 #define IS_IMM12(x) ((x) >= -2048 && (x) <= 2047)
 #define LI(rd, imm) fprintf(yyout, "  li %s, %d\n", rd, imm);
 #define LA(rd, label) fprintf(yyout, "  la %s, %s\n", rd, label);

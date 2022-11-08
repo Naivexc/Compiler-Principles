@@ -61,21 +61,11 @@
 
 #pragma region Extern
 
-extern std::string k_str;
-
-extern bool debug;
-
-extern int unused_koopa_count; //%%d
-
-extern int depth_dump;
-
 extern std::string itostr(int num);
 
 extern int strtoi(std::string str);
 
 extern std::string AST_name[];
-
-extern int space_needed;
 
 extern bool is_calculating_const_exp;
 
