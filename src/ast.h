@@ -1,3 +1,5 @@
+#ifndef AST_H
+#define AST_H
 #include <iostream>
 #include <memory>
 #include <stack>
@@ -5,184 +7,88 @@
 #include <map>
 #include <queue>
 #include <assert.h>
-
-#pragma region Define
-
+#include "InitList.h"
+#include "UnaryExp.h"
+#include "PrimaryExp.h"
+#include "LAndExp.h"
+#include "EqExp.h"
+#include "RelExp.h"
+#include "AddExp.h"
+#include "MulExp.h"
+#include "LOrExp.h"
+#include "Decl.h"
+#include "Stmt.h"
+#include "VarDef.h"
+#include "CompUnitEle.h"
+#include "ConstInitVal.h"
+#include "FuncFParam.h"
+#include "LVal.h"
+#include "InitVal.h"
+#include "ConstDef.h"
 #define DEBUG_BEGIN true
-
 #define DEBUG_END false
-
 #define IS_CONST true
-
 #define IS_NOT_CONST false
-
 #define STRONG 1
-
 #define WEAK 0
-
 #define GLOBAL 2
-
 #define UN_DEF -1
-
 #define GET_ARRAY_PTR 2
-
 #define NORMAL 0
-
 #define TAG_0 0
-
 #define TAG_1 1
-
 #define TAG_2 2
-
 #define TAG_3 3
-
 #define TAG_4 4
-
 #define TAG_5 5
-
 #define TAG_6 6
-
 #define TAG_7 7
-
 #define TAG_8 8
-
 #define TAG_9 9
-
 #define TAG_10 10
-
 #define DIM_0 0
-
 #define LINE(x)                 \
 	{                           \
 		printf("line:%d\n", x); \
 	}
-
-#pragma endregion Define
-
-#pragma region Extern
-
 extern std::string itostr(int num);
-
 extern int strtoi(std::string str);
-
 extern std::string AST_name[];
-
 extern bool is_calculating_const_exp;
-
 extern bool last_ins_is_ret;
-
 extern bool str_is_same(const char *s1, const char *s2);
-
 extern int unused_koopa_var_count; //@var_name %d
-
 extern int unused_koopa_label_count;
-
 class CompUnitAST;
-
 class LValAST;
-
 class FuncTypeAST;
-
 class FuncFParamAST;
-
 class ExpAST;
-
 class SymbolTableTree;
-
 class SymbolTable;
-
 class FuncRParamsAST;
-
 struct InitList;
-
 extern std::queue<std::string> global_var_name_queue;
-
 extern void print_dump(std::string AST_name, bool is_debug_begin);
-
 extern void print_ident(int ident);
-
 extern SymbolTableTree symbol_table_tree;
-
 extern SymbolTable *cur_symbol_table;
-
 struct SpaceNeeded;
-
 extern std::map<std::string, SpaceNeeded> map_space_needed_for_function;
-
 extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
-
 extern int return_type_space(std::string type);
 extern int max_int(int x, int y);
-
-#pragma endregion Extern
-
-#pragma region CalData
-
 class CalData
 {
 public:
 	bool is_num;
 	int val;
 	int count;
-	void operator=(CalData rhs)
-	{
-		this->is_num = rhs.is_num;
-		this->val = rhs.val;
-		this->count = rhs.count;
-	}
-	void print_data_to_k_str()
-	{
-		if (is_num == true)
-			k_str += itostr(val);
-		else
-			k_str += ("%" + itostr(count));
-	}
-	CalData() : is_num(true), val(0), count(0){};
+	void operator=(CalData);
+	void print_data_to_k_str();
+	CalData();
 };
 
-#pragma endregion CalData
-
-struct InitListCase0
-{
-	CalData data;
-};
-
-struct InitListCase1
-{
-	std::vector<std::unique_ptr<InitList>> vec_init_list;
-};
-
-struct InitList
-{
-	int tag;
-	union
-	{
-		InitListCase0 *init_list_case_0;
-		InitListCase1 *init_list_case_1;
-	} init_list_union;
-	InitList(int __tag__)
-	{
-		tag = __tag__;
-		switch (tag)
-		{
-		case (0):
-			init_list_union.init_list_case_0 = new InitListCase0();
-			init_list_union.init_list_case_0->data.is_num = true;
-			init_list_union.init_list_case_0->data.val = 0;
-			init_list_union.init_list_case_0->data.count = -1;
-			break;
-		case (1):
-			init_list_union.init_list_case_1 = new InitListCase1();
-			break;
-		default:
-			assert(false);
-		}
-	}
-};
-
-#pragma region AST_Base
-
-#pragma region BaseAST
 class BaseAST
 {
 public:
@@ -191,7 +97,6 @@ public:
 
 	virtual void Dump(int ctl = 0) = 0;
 };
-#pragma endregion BaseAST
 
 class BaseExpAST : public BaseAST
 {
@@ -218,342 +123,6 @@ public:
 	virtual ~BaseTypeAST() = default;
 	virtual void Dump(int ctl = 0) = 0;
 };
-
-#pragma region AST_Case
-
-#pragma region PrimaryExpCase
-struct PrimaryExpCase0
-{
-	std::unique_ptr<BaseExpAST> exp;
-};
-struct PrimaryExpCase1
-{
-	std::unique_ptr<BaseAST> l_val;
-};
-struct PrimaryExpCase2
-{
-	std::unique_ptr<BaseExpAST> number;
-};
-#pragma endregion Primary
-
-#pragma region UnaryExpCase
-struct UnaryExpCase0
-{
-	std::unique_ptr<BaseExpAST> primary_exp;
-};
-struct UnaryExpCase1
-{
-	std::string ident;
-	std::unique_ptr<BaseAST> func_r_params;
-};
-struct UnaryExpCase2
-{
-	std::unique_ptr<BaseOpAST> unary_op;
-	std::unique_ptr<BaseExpAST> unary_exp;
-};
-#pragma endregion Unary
-
-#pragma region MulExpCase
-struct MulExpCase0
-{
-	std::unique_ptr<BaseExpAST> unary_exp;
-};
-struct MulExpCase1
-{
-	std::unique_ptr<BaseExpAST> mul_exp;
-	std::unique_ptr<BaseOpAST> mul_op;
-	std::unique_ptr<BaseExpAST> unary_exp;
-};
-#pragma endregion MulExp
-
-#pragma region AddExpCase
-struct AddExpCase0
-{
-	std::unique_ptr<BaseExpAST> mul_exp;
-};
-struct AddExpCase1
-{
-	std::unique_ptr<BaseExpAST> mul_exp;
-	std::unique_ptr<BaseExpAST> add_exp;
-	std::unique_ptr<BaseOpAST> add_op;
-};
-#pragma endregion AddExp
-
-#pragma region RelExpCase
-struct RelExpCase0
-{
-	std::unique_ptr<BaseExpAST> add_exp;
-};
-struct RelExpCase1
-{
-	std::unique_ptr<BaseExpAST> rel_exp;
-	std::unique_ptr<BaseOpAST> rel_op;
-	std::unique_ptr<BaseExpAST> add_exp;
-};
-#pragma endregion RelExp
-
-#pragma region EqExpCase
-struct EqExpCase0
-{
-	std::unique_ptr<BaseExpAST> rel_exp;
-};
-struct EqExpCase1
-{
-	std::unique_ptr<BaseExpAST> eq_exp;
-	std::unique_ptr<BaseOpAST> eq_op;
-	std::unique_ptr<BaseExpAST> rel_exp;
-};
-#pragma endregion EqExp
-
-#pragma region LAndExpCase
-struct LAndExpCase0
-{
-	std::unique_ptr<BaseExpAST> eq_exp;
-};
-struct LAndExpCase1
-{
-	std::unique_ptr<BaseExpAST> l_and_exp;
-	std::unique_ptr<BaseOpAST> l_and_op;
-	std::unique_ptr<BaseExpAST> eq_exp;
-};
-#pragma endregion LAndExp
-
-#pragma region LOrExpCase
-struct LOrExpCase0
-{
-	std::unique_ptr<BaseExpAST> l_and_exp;
-};
-struct LOrExpCase1
-{
-	std::unique_ptr<BaseExpAST> l_or_exp;
-	std::unique_ptr<BaseOpAST> l_or_op;
-	std::unique_ptr<BaseExpAST> l_and_exp;
-};
-#pragma endregion LOrExp
-
-#pragma region DeclCase
-struct DeclCase0
-{
-	std::unique_ptr<BaseAST> const_decl;
-};
-struct DeclCase1
-{
-	std::unique_ptr<BaseAST> var_decl;
-};
-#pragma endregion Decl
-
-#pragma region StmtCase
-struct StmtCase0 // lval=exp;
-{
-	std::unique_ptr<BaseAST> l_val;
-	std::unique_ptr<BaseExpAST> exp;
-};
-struct StmtCase1 //;
-{
-};
-struct StmtCase2 // exp;
-{
-	std::unique_ptr<BaseExpAST> exp;
-};
-struct StmtCase3 // block
-{
-	std::unique_ptr<BaseAST> block;
-};
-struct StmtCase4 // if
-{
-	std::unique_ptr<BaseExpAST> exp;
-	std::unique_ptr<BaseAST> stmt;
-	std::string label_then;
-	std::string label_end;
-};
-struct StmtCase5 // if else
-{
-	std::unique_ptr<BaseExpAST> exp;
-	std::unique_ptr<BaseAST> stmt_if;
-	std::unique_ptr<BaseAST> stmt_else;
-	std::string label_then;
-	std::string label_else;
-	std::string label_end;
-};
-struct StmtCase6 // while
-{
-	std::unique_ptr<BaseExpAST> exp;
-	std::unique_ptr<BaseAST> stmt;
-	std::string label_while;
-	std::string label_while_true;
-	std::string label_while_false;
-};
-struct StmtCase7 // break
-{
-	BaseAST *last_while_ins;
-};
-struct StmtCase8 // continue
-{
-	BaseAST *last_while_ins;
-};
-struct StmtCase9
-{
-	std::unique_ptr<BaseExpAST> exp;
-};
-struct StmtCase10
-{
-	// empty
-};
-#pragma endregion Stmt
-
-#pragma region VarDef
-
-struct VarDefCase0
-{
-	std::string ident;
-};
-
-struct VarDefCase1 //???Dump????????
-{
-	std::string ident;
-	std::vector<std::unique_ptr<BaseExpAST>> vec_const_exp;
-	std::unique_ptr<BaseAST> init_val;
-	std::string return_type()
-	{
-		std::string arr_type = "i32";
-		int n = vec_const_exp.size();
-		for (int i = 0; i < n; ++i)
-		{
-			arr_type = ("[" + arr_type + ", " + itostr(vec_const_exp[n - 1 - i]->data.val) + ']');
-		}
-		return arr_type;
-	}
-};
-
-struct VarDefCase2
-{
-	std::string ident;
-	std::unique_ptr<BaseAST> init_val;
-};
-
-#pragma endregion VarDef
-
-#pragma region CompUnit
-
-struct CompUnitEleCase0
-{
-	std::unique_ptr<BaseAST> func_def;
-};
-struct CompUnitEleCase1
-{
-	std::unique_ptr<BaseAST> decl;
-};
-
-#pragma endregion CompUnit
-
-#pragma region ConstInitVal
-
-struct ConstInitValCase0
-{
-	std::unique_ptr<BaseExpAST> const_exp;
-	CalData data;
-};
-
-struct ConstInitValCase1
-{
-	std::vector<std::unique_ptr<BaseAST>> vec_const_init_val;
-};
-
-#pragma endregion ConstInitVal
-
-#pragma region ConstDef
-
-struct ConstDefCase0
-{
-	std::string ident;
-	std::unique_ptr<BaseAST> const_init_val;
-	CalData data;
-};
-
-struct ConstDefCase1
-{
-	std::string ident;
-	std::vector<std::unique_ptr<BaseExpAST>> vec_const_exp;
-	std::unique_ptr<BaseAST> const_init_val;
-	CalData data;
-	std::string return_type()
-	{
-		std::string arr_type = "i32";
-		int n = vec_const_exp.size();
-		for (int i = 0; i < n; ++i)
-		{
-			arr_type = ("[" + arr_type + ", " + itostr(vec_const_exp[n - 1 - i]->data.val) + ']');
-		}
-		return arr_type;
-	}
-};
-
-#pragma endregion ConstDef
-
-#pragma region InitVal
-
-struct InitValCase0
-{
-	std::unique_ptr<BaseExpAST> exp;
-	CalData data;
-};
-
-struct InitValCase1
-{
-	std::vector<std::unique_ptr<BaseAST>> vec_init_val;
-	// std::vector<CalData> vec_data;
-};
-
-#pragma endregion InitVal
-
-#pragma region LVal
-
-struct LValCase0
-{
-	std::string ident;
-};
-
-struct LValCase1
-{
-	std::string ident;
-	std::vector<std::unique_ptr<BaseExpAST>> vec_exp;
-};
-
-#pragma endregion LVal
-
-#pragma region FuncFParam
-
-struct FuncFParamCase0
-{
-	std::unique_ptr<BaseTypeAST> b_type;
-	std::string ident;
-};
-
-struct FuncFParamCase1
-{
-	std::unique_ptr<BaseTypeAST> b_type;
-	std::string ident;
-	std::vector<std::unique_ptr<BaseExpAST>> vec_const_exp;
-	std::string return_type()
-	{
-		std::string arr_type = "i32";
-		int n = vec_const_exp.size();
-		for (int i = 0; i < n; ++i)
-		{
-			arr_type = ("[" + arr_type + ", " + itostr(vec_const_exp[n - 1 - i]->data.val) + ']');
-		}
-		arr_type = "*" + arr_type;
-		return arr_type;
-	}
-};
-
-#pragma endregion FuncFParam
-
-#pragma endregion AST_Case
-
-#pragma region SymbolTable
-
-#pragma region Variate
 
 class Variate
 {
@@ -3685,7 +3254,4 @@ public:
 		}
 	}
 };
-
-#pragma endregion VarDef
-
-#pragma endregion AST_Other
+#endif

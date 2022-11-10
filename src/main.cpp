@@ -18,14 +18,14 @@ extern int yyparse(std::unique_ptr<BaseAST> &ast);
 extern koopa_error_code_t koopa_parse_from_string(const char *str, koopa_program_t *program);
 extern bool str_is_same(const char *s1, const char *s2);
 extern int return_size_of_value(const koopa_raw_type_kind *const __kind__);
-static std::string k_str = "decl @getint() : i32\n \
-                            decl @getch() : i32\n \
-							decl @getarray(*i32) : i32\n \
-							decl @putint(i32)\n \
-							decl @putch(i32)\n \
-							decl @putarray(i32, *i32)\n \
-							decl @starttime()\n \
-							decl @stoptime()\n\n";
+std::string k_str = "decl @getint() : i32\n"
+					"decl @getch() : i32\n"
+					"decl @getarray(*i32) : i32\n"
+					"decl @putint(i32)\n"
+					"decl @putch(i32)\n"
+					"decl @putarray(i32, *i32)\n"
+					"decl @starttime()\n"
+					"decl @stoptime()\n\n";
 static std::string data_str = "";
 static std::string text_str = "";
 static int unused_koopa_count = 0;
