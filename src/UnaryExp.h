@@ -31,24 +31,6 @@ public:
         UnaryExpCase2 *unary_exp_case_2;
     } unary_exp_union;
     void Dump(int ctl = 0) override;
-    UnaryExpAST(int __tag__)
-    {
-        tag = __tag__;
-        switch (tag)
-        {
-        case 0:
-            unary_exp_union.unary_exp_case_0 = new UnaryExpCase0();
-            break;
-        case 1:
-            unary_exp_union.unary_exp_case_1 = new UnaryExpCase1();
-            break;
-        case 2:
-            unary_exp_union.unary_exp_case_2 = new UnaryExpCase2();
-            break;
-        default:
-            assert(false);
-        }
-        return;
-    }
+    UnaryExpAST(int __tag__);
 };
 #endif

@@ -1,5 +1,10 @@
 #include "UnaryExp.h"
 #include "Debug.h"
+#include "SymbolTable.h"
+#include <cassert>
+
+extern SymbolTable *cur_symbol_table;
+
 void UnaryExpAST::Dump(int ctl = 0) // override
 {
     PRINT_DUMP("UnaryExp", DEBUG_BEGIN);
@@ -65,4 +70,24 @@ void UnaryExpAST::Dump(int ctl = 0) // override
         assert(false);
     }
     PRINT_DUMP("UnaryExp", DEBUG_END);
+}
+
+UnaryExpAST::UnaryExpAST(int __tag__)
+{
+    tag = __tag__;
+    switch (tag)
+    {
+    case 0:
+        unary_exp_union.unary_exp_case_0 = new UnaryExpCase0();
+        break;
+    case 1:
+        unary_exp_union.unary_exp_case_1 = new UnaryExpCase1();
+        break;
+    case 2:
+        unary_exp_union.unary_exp_case_2 = new UnaryExpCase2();
+        break;
+    default:
+        assert(false);
+    }
+    return;
 }
