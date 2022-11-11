@@ -1,6 +1,5 @@
 #ifndef RISCV_H
 #define RISCV_H
-
 #include "koopa.h"
 #define IS_IMM12(x) ((x) >= -2048 && (x) <= 2047)
 #define LI(rd, imm) fprintf(yyout, "  li %s, %d\n", rd, imm);
@@ -132,7 +131,6 @@
     {                                  \
         fprintf(yyout, "//%s\n", str); \
     }
-
 extern void Visit(const koopa_raw_program_t &program);
 extern void Visit(const koopa_raw_slice_t &slice);
 extern void Visit(const koopa_raw_function_t &func);

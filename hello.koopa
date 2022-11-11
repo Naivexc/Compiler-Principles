@@ -1,0 +1,130 @@
+decl @getint() : i32
+decl @getch() : i32
+decl @getarray(*i32) : i32
+decl @putint(i32)
+decl @putch(i32)
+decl @putarray(i32, *i32)
+decl @starttime()
+decl @stoptime()
+
+fun @add(%a: i32,%b: i32): i32
+{
+  %entry:
+    @a_1 = alloc i32
+    store %a, @a_1
+    @b_2 = alloc i32
+    store %b, @b_2
+    %0 = load @b_2
+    %1 = load @a_1
+    %2 = add %1, %0
+    ret %2
+}
+fun @sub(%a: i32,%b: i32): i32
+{
+  %entry:
+    @a_3 = alloc i32
+    store %a, @a_3
+    @b_4 = alloc i32
+    store %b, @b_4
+    %3 = load @b_4
+    %4 = load @a_3
+    %5 = sub %4, %3
+    ret %5
+}
+fun @mul(%a: i32,%b: i32): i32
+{
+  %entry:
+    @a_5 = alloc i32
+    store %a, @a_5
+    @b_6 = alloc i32
+    store %b, @b_6
+    %6 = load @b_6
+    %7 = load @a_5
+    %8 = mul %7, %6
+    ret %8
+}
+fun @div(%a: i32,%b: i32): i32
+{
+  %entry:
+    @a_7 = alloc i32
+    store %a, @a_7
+    @b_8 = alloc i32
+    store %b, @b_8
+    %9 = load @b_8
+    %10 = load @a_7
+    %11 = div %10, %9
+    ret %11
+}
+fun @main(): i32
+{
+  %entry:
+    %12 = call @sub(1,2)
+    %13 = call @div(4,5)
+    %14 = call @mul(3,%13)
+    %15 = call @add(%12,%14)
+    @x_9 = alloc i32
+    store %15, @x_9
+  %temp_l_result_10 = alloc i32
+    br 1, %then_0, %else_1
+  %else_1:
+    %16 = or 1, 0
+    %17 = ne %16, 0
+  store %17, %temp_l_result_10
+    jump %end_2
+  %then_0:
+  store 1, %temp_l_result_10
+    jump %end_2
+  %end_2:
+    %19 = load %temp_l_result_10
+  %temp_l_result_11 = alloc i32
+  %temp_l_result_12 = alloc i32
+    br 0, %then_3, %else_4
+  %then_3:
+    %20 = load @x_9
+    %21 = call @sub(1,%20)
+    %22 = ne 0, 0
+    %23 = ne %21, 0
+    %24 = and %23, %22
+  store %24, %temp_l_result_12
+    jump %end_5
+  %else_4:
+  store 0, %temp_l_result_12
+    jump %end_5
+  %end_5:
+    %26 = load %temp_l_result_12
+    br %26, %then_6, %else_7
+  %else_7:
+  %temp_l_result_13 = alloc i32
+    %27 = load @x_9
+    br %27, %then_9, %else_10
+  %else_10:
+    %28 = call @add(1,2)
+    %29 = gt %28, 10
+    %30 = or %27, %29
+    %31 = ne %30, 0
+  store %31, %temp_l_result_13
+    jump %end_11
+  %then_9:
+  store 1, %temp_l_result_13
+    jump %end_11
+  %end_11:
+    %33 = load %temp_l_result_13
+    %34 = call @div(%33,5)
+    %35 = call @mul(3,%34)
+    %36 = or %26, %35
+    %37 = ne %36, 0
+  store %37, %temp_l_result_11
+    jump %end_8
+  %then_6:
+  store 1, %temp_l_result_11
+    jump %end_8
+  %end_8:
+    %39 = load %temp_l_result_11
+    %40 = call @add(%19,%39)
+    @y_14 = alloc i32
+    store %40, @y_14
+    %41 = load @y_14
+    %42 = load @x_9
+    %43 = add %42, %41
+    ret %43
+}
