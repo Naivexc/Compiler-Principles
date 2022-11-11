@@ -81,4 +81,25 @@ public:
     // empty
 };
 
+class StmtAST : public BaseAST
+{
+public:
+    union
+    {
+        StmtCase0 *stmt_case_0;
+        StmtCase1 *stmt_case_1;
+        StmtCase2 *stmt_case_2;
+        StmtCase3 *stmt_case_3;
+        StmtCase4 *stmt_case_4;
+        StmtCase5 *stmt_case_5;
+        StmtCase6 *stmt_case_6;
+        StmtCase7 *stmt_case_7; // empty
+        StmtCase8 *stmt_case_8; // empty
+        StmtCase9 *stmt_case_9;
+        StmtCase10 *stmt_case_10;
+    } stmt_union;
+    void Dump(int ctl = 0) override;
+    StmtAST(int __tag__);
+};
+
 #endif

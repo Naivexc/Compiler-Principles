@@ -8,7 +8,7 @@ extern bool is_calculating_const_exp;
 extern int32_t unused_koopa_count = 0;
 extern std::string k_str;
 extern SymbolTable *cur_symbol_table;
-SymbolTableTree symbol_table_tree;
+extern SymbolTableTree symbol_table_tree;
 
 extern std::string itostr(int num);
 

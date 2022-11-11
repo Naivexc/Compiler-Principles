@@ -17,4 +17,16 @@ public:
     // std::vector<CalData> vec_data;
 };
 
+class InitValAST : public BaseAST
+{
+public:
+    union
+    {
+        InitValCase0 *init_val_case_0;
+        InitValCase1 *init_val_case_1;
+    } init_val_union;
+    void Dump(int ctl = 0) override;
+    InitValAST(int __tag__);
+};
+
 #endif
