@@ -1,6 +1,7 @@
+#ifndef CONST_DECL_H
+#define CONST_DECL_H
+
 #include "Base.h"
-#include "Debug.h"
-#include <memory>
 #include <vector>
 #include <cassert>
 
@@ -13,3 +14,5 @@ public:
     std::vector<std::unique_ptr<BaseAST>> vec_const_def;
     void Dump(int ctl = 0) override;
 };
+
+#endif

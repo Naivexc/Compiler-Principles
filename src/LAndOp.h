@@ -1,6 +1,7 @@
+#ifndef L_AND_OP_H
+#define L_AND_OP_H
+
 #include "Base.h"
-#include "Debug.h"
-#include "SymbolTable.h"
 
 extern bool is_calculating_const_exp;
 extern std::string k_str;
@@ -15,3 +16,5 @@ public:
     char op[3];
     void Dump(int ctl = 0) override;
 };
+
+#endif

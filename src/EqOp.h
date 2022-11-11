@@ -1,6 +1,7 @@
+#ifndef EQ_OP_H
+#define EQ_OP_H
+
 #include "Base.h"
-#include "Debug.h"
-#include "SymbolTable.h"
 #include <string>
 #include <string.h>
 
@@ -18,3 +19,5 @@ public:
     char op[3];
     void Dump(int ctl = 0) override;
 };
+
+#endif

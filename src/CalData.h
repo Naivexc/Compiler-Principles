@@ -1,3 +1,6 @@
+#ifndef CAL_DATA_H
+#define CAL_DATA_H
+
 class CalData
 {
 public:
@@ -8,3 +11,5 @@ public:
     void print_data_to_k_str();
     CalData();
 };
+
+#endif

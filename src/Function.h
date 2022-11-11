@@ -1,3 +1,6 @@
+#ifndef FUNCTION_H
+#define FUNCTION_H
+
 #include "FuncFParam.h"
 #include <string>
 #include <vector>
@@ -15,3 +18,5 @@ public:
         params_type = __params_type__;
     }
 };
+
+#endif

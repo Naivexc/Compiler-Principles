@@ -1,3 +1,6 @@
+#ifndef FUNC_DEF_H
+#define FUNC_DEF_H
+
 #include "Base.h"
 #include "FuncType.h"
 #include "FuncFParams.h"
@@ -11,3 +14,5 @@ public:
     std::unique_ptr<BaseAST> func_f_params;
     void Dump(int ctl = 0) override;
 };
+
+#endif

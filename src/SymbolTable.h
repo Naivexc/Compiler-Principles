@@ -1,3 +1,6 @@
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
+
 #include <memory>
 #include <map>
 #include <vector>
@@ -23,3 +26,5 @@ class SymbolTableTree
 public:
     std::unique_ptr<SymbolTable> symbol_table_tree_root;
 };
+
+#endif

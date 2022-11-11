@@ -1,3 +1,6 @@
+#ifndef SYMBOL_H
+#define SYMBOL_H
+
 #include "Variate.h"
 #include "Function.h"
 struct Symbol
@@ -21,3 +24,5 @@ struct Symbol
         *data.func = __function__;
     }
 };
+
+#endif

@@ -1,6 +1,7 @@
+#ifndef UNARY_OP_H
+#define UNARY_OP_H
+
 #include "Base.h"
-#include "Debug.h"
-#include "SymbolTable.h"
 #include <cassert>
 #include <string>
 
@@ -16,3 +17,5 @@ public:
     char op;
     void Dump(int ctl = 0);
 };
+
+#endif

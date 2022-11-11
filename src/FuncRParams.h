@@ -1,3 +1,6 @@
+#ifndef FUNC_R_PARAMS
+#define FUNC_R_PARAMS
+
 #include "Base.h"
 #include "Exp.h"
 
@@ -7,3 +10,5 @@ public:
     std::vector<ExpAST *> func_r_params;
     void Dump(int ctl = 0) override;
 };
+
+#endif

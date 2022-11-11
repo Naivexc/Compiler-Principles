@@ -1,3 +1,6 @@
+#ifndef BLOCK_ITEM_H
+#define BLOCK_ITEM_H
+
 #include "Base.h"
 
 class BlockItemAST : public BaseAST
@@ -9,3 +12,5 @@ public:
     std::unique_ptr<BaseAST> stmt;
     void Dump(int ctl = 0) override;
 };
+
+#endif

@@ -1,7 +1,7 @@
 #ifndef FUNC_F_PARAM_H
 #define FUNC_F_PARAM_H
 
-#include "ast.h"
+#include "Base.h"
 
 class FuncFParamCase0
 {

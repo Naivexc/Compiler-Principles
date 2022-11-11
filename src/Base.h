@@ -1,7 +1,8 @@
 /*
     Base.h定义了AST的基础节点类
 */
-
+#ifndef BASE_H
+#define BASE_H
 #include "CalData.h"
 #include "string"
 #include "Debug.h"
@@ -41,3 +42,5 @@ public:
     virtual ~BaseTypeAST() = default;
     virtual void Dump(int ctl = 0) = 0;
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef RISCV_H
+#define RISCV_H
+
 #include "koopa.h"
 #define IS_IMM12(x) ((x) >= -2048 && (x) <= 2047)
 #define LI(rd, imm) fprintf(yyout, "  li %s, %d\n", rd, imm);
@@ -146,3 +149,5 @@ extern void Visit(koopa_raw_call_t call);
 extern void Visit(koopa_raw_global_alloc_t global_alloc);
 extern void Visit(koopa_raw_get_elem_ptr_t get_elem_ptr);
 extern void Visit(koopa_raw_get_ptr_t get_ptr);
+
+#endif

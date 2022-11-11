@@ -1,6 +1,7 @@
+#ifndef MUL_OP_H
+#define MUL_OP_H
+
 #include "Base.h"
-#include "Debug.h"
-#include "SymbolTable.h"
 #include <string>
 #include <cassert>
 
@@ -16,3 +17,5 @@ public:
     char op;
     void Dump(int ctl = 0) override;
 };
+
+#endif
