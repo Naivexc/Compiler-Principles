@@ -19,4 +19,19 @@ public:
     std::string return_type();
 };
 
+class FuncFParamAST : public BaseAST
+{
+public:
+    union
+    {
+        FuncFParamCase0 *func_f_param_case_0;
+        FuncFParamCase1 *func_f_param_case_1;
+    } func_f_param_union;
+    int size;
+    std::string koopa_type;
+    FuncFParamAST(int __tag__, std::string __ident__ = "");
+    void Dump(int ctl = 0) override;
+    void declare_alloc();
+};
+
 #endif

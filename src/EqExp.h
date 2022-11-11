@@ -17,4 +17,16 @@ public:
     std::unique_ptr<BaseExpAST> rel_exp;
 };
 
+class EqExpAST : public BaseExpAST
+{
+public:
+    union
+    {
+        EqExpCase0 *eq_exp_case_0;
+        EqExpCase1 *eq_exp_case_1;
+    } eq_exp_union;
+    void Dump(int ctl = 0) override;
+    EqExpAST(int __tag__);
+};
+
 #endif

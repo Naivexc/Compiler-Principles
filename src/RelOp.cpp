@@ -1,26 +1,38 @@
-#include "EqOp.h"
+#include "RelOp.h"
 
-void EqOpAST::Dump(int ctl = 0)
+void RelOpAST::Dump(int ctl = 0)
 {
     int temp_val = 0;
-    PRINT_DUMP("EqOp", DEBUG_BEGIN);
+    PRINT_DUMP("RelOp", DEBUG_BEGIN);
     if (is_calculating_const_exp == false)
     {
         k_str += "    %";
         k_str += itostr(unused_koopa_count);
         k_str += " = ";
     }
-    if (strcmp(op, "==") == 0)
+    if (str_is_same(op, ">") == true)
     {
         if (is_calculating_const_exp == false)
-            k_str += "eq ";
-        temp_val = lhs.val == rhs.val;
+            k_str += "gt ";
+        temp_val = lhs.val > rhs.val;
     }
-    else
+    else if (str_is_same(op, "<") == true)
     {
         if (is_calculating_const_exp == false)
-            k_str += "ne ";
-        temp_val = lhs.val != rhs.val;
+            k_str += "lt ";
+        temp_val = lhs.val < rhs.val;
+    }
+    else if (str_is_same(op, ">=") == true)
+    {
+        if (is_calculating_const_exp == false)
+            k_str += "ge ";
+        temp_val = lhs.val >= rhs.val;
+    }
+    else if (str_is_same(op, "<=") == true)
+    {
+        if (is_calculating_const_exp == false)
+            k_str += "le ";
+        temp_val = lhs.val <= rhs.val;
     }
     if (is_calculating_const_exp == false)
     {
@@ -51,5 +63,5 @@ void EqOpAST::Dump(int ctl = 0)
             cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
     }
     result.val = temp_val;
-    PRINT_DUMP("EqOp", DEBUG_END);
+    PRINT_DUMP("RelOp", DEBUG_END);
 }

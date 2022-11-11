@@ -4,6 +4,9 @@
 
 #include "CalData.h"
 #include "string"
+#include "Debug.h"
+#include "SymbolTable.h"
+
 class BaseAST
 {
 public:

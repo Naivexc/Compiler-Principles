@@ -17,4 +17,16 @@ public:
     std::unique_ptr<BaseExpAST> eq_exp;
 };
 
+class LAndExpAST : public BaseExpAST
+{
+public:
+    union
+    {
+        LAndExpCase0 *l_and_exp_case_0;
+        LAndExpCase1 *l_and_exp_case_1;
+    } l_and_exp_union;
+    void Dump(int ctl = 0) override;
+    LAndExpAST(int __tag__);
+};
+
 #endif

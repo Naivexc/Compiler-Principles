@@ -2,9 +2,9 @@
 #include "Debug.h"
 #include "SymbolTable.h"
 
-class AddOpAST : public BaseOpAST
+class ExpAST : public BaseExpAST
 {
 public:
-    char op;
+    std::unique_ptr<BaseExpAST> l_or_exp;
     void Dump(int ctl = 0) override;
 };

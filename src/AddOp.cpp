@@ -1,26 +1,31 @@
-#include "EqOp.h"
+#include "AddOp.h"
 
-void EqOpAST::Dump(int ctl = 0)
+void AddOpAST::Dump(int ctl = 0)
 {
     int temp_val = 0;
-    PRINT_DUMP("EqOp", DEBUG_BEGIN);
+    PRINT_DUMP("AddOp", DEBUG_BEGIN);
     if (is_calculating_const_exp == false)
     {
         k_str += "    %";
         k_str += itostr(unused_koopa_count);
         k_str += " = ";
     }
-    if (strcmp(op, "==") == 0)
+    switch (op)
+    {
+    case ('+'):
     {
         if (is_calculating_const_exp == false)
-            k_str += "eq ";
-        temp_val = lhs.val == rhs.val;
+            k_str += "add ";
+        temp_val = lhs.val + rhs.val;
+        break;
     }
-    else
-    {
+    case ('-'):
         if (is_calculating_const_exp == false)
-            k_str += "ne ";
-        temp_val = lhs.val != rhs.val;
+            k_str += "sub ";
+        temp_val = lhs.val - rhs.val;
+        break;
+    default:
+        assert(false);
     }
     if (is_calculating_const_exp == false)
     {
@@ -51,5 +56,5 @@ void EqOpAST::Dump(int ctl = 0)
             cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
     }
     result.val = temp_val;
-    PRINT_DUMP("EqOp", DEBUG_END);
+    PRINT_DUMP("AddOp", DEBUG_END);
 }
