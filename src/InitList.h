@@ -1,6 +1,9 @@
 #ifndef INIT_LIST_H
 #define INIT_LIST_H
-#include "ast.h"
+#include "CalData.h"
+
+class InitList;
+
 class InitListCase0
 {
 public:
@@ -16,12 +19,12 @@ public:
 class InitList
 {
 public:
-    int tag;
+    int32_t tag;
     union
     {
         InitListCase0 *init_list_case_0;
         InitListCase1 *init_list_case_1;
     } init_list_union;
-    InitList(int);
+    InitList(int32_t);
 };
 #endif

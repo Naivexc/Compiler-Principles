@@ -7,6 +7,7 @@
 #include "ast.h"
 #include "koopa.h"
 #include "riscv.h"
+#include "SymbolTable.h"
 #include <map>
 #include <queue>
 extern FILE *yyout;
@@ -28,21 +29,20 @@ std::string k_str = "decl @getint() : i32\n"
 					"decl @stoptime()\n\n";
 static std::string data_str = "";
 static std::string text_str = "";
-static int unused_koopa_count = 0;
+int32_t unused_koopa_count = 0;
 static int space_needed = 0;
 static bool debug = false;
-static int depth_dump = 0;
+int32_t depth_dump = 0;
 static int depth_visit = 0;
 static int sp_dev = 0;
 static std::map<uint64_t, int> ins_map;
 static std::queue<std::string> global_var_name_queue;
 static std::map<uint64_t, std::string> global_var_name_map;
 static void *slice_ptr;
-static SymbolTableTree symbol_table_tree;
-static bool is_calculating_const_exp;
+bool is_calculating_const_exp;
 static bool cur_block_is_entry;
 static bool last_ins_is_ret;
-static int unused_koopa_var_count;
+int32_t unused_koopa_var_count;
 static int unused_koopa_label_count;
 static int unused_riscv_label_count;
 SymbolTable *cur_symbol_table;
@@ -70,41 +70,23 @@ void global_var_init()
 	cur_symbol_table->insert("@starttime", Function("void", std::vector<FuncFParamAST *>{}));
 	cur_symbol_table->insert("@stoptime", Function("void", std::vector<FuncFParamAST *>{}));
 }
-void print_ident(int ident)
-{
-	for (int i = 0; i < ident; ++i)
-		printf("  ");
-}
-void print_dump(std::string AST_name, bool is_begin)
-{
-	if (is_begin == true)
-	{
-		print_ident(depth_dump);
-		printf("%sAST->Dump(): Begin\n", AST_name.c_str());
-		print_ident(depth_dump);
-		printf("{Depth: %d\n", depth_dump);
-	}
-	else
-	{
-		print_ident(depth_dump);
-		printf("Depth: %d}\n", depth_dump);
-		print_ident(depth_dump);
-		printf("%sAST->Dump(): End\n", AST_name.c_str());
-	}
-}
+
+/**
+ * @brief 将int32_t类型整数转换为string类型
+ * @param num 准备转换的整数
+ * @return 转换得到的字符串
+ **/
 std::string itostr(int num)
 {
-	std::string str = "";
 	if (num == 0)
-	{
-		str += '0';
-		return str;
-	}
+		return "0";
+	std::string str = "";
 	if (num < 0)
 	{
 		str += '-';
 		num *= -1;
 	}
+	// num>0
 	std::stack<char> s;
 	while (num > 0)
 	{

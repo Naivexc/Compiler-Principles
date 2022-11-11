@@ -1,3 +1,7 @@
+/*
+	ast.h引用了AST所有节点的类型
+*/
+
 #ifndef AST_H
 #define AST_H
 #include <iostream>
@@ -25,8 +29,7 @@
 #include "LVal.h"
 #include "InitVal.h"
 #include "ConstDef.h"
-#define DEBUG_BEGIN true
-#define DEBUG_END false
+#include "Debug.h"
 #define IS_CONST true
 #define IS_NOT_CONST false
 #define STRONG 1
@@ -78,201 +81,6 @@ extern std::map<std::string, SpaceNeeded> map_space_needed_for_function;
 extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
 extern int return_type_space(std::string type);
 extern int max_int(int x, int y);
-class CalData
-{
-public:
-	bool is_num;
-	int val;
-	int count;
-	void operator=(CalData);
-	void print_data_to_k_str();
-	CalData();
-};
-
-class BaseAST
-{
-public:
-	int tag;
-	virtual ~BaseAST() = default;
-
-	virtual void Dump(int ctl = 0) = 0;
-};
-
-class BaseExpAST : public BaseAST
-{
-public:
-	CalData data;
-	virtual ~BaseExpAST() = default;
-	virtual void Dump(int ctl = 0) = 0;
-};
-
-class BaseOpAST : public BaseAST
-{
-public:
-	CalData lhs;
-	CalData rhs;
-	CalData result;
-	virtual ~BaseOpAST() = default;
-	virtual void Dump(int ctl = 0) = 0;
-};
-
-class BaseTypeAST : public BaseAST
-{
-public:
-	std::string type;
-	virtual ~BaseTypeAST() = default;
-	virtual void Dump(int ctl = 0) = 0;
-};
-
-class Variate
-{
-public:
-	bool flag_is_const;
-	int val;
-	std::string var_type; //"int"
-	int sym_type;		  // STRONG WEAK
-	int koopa_var_count;
-	int dim;
-	Variate(bool __is_const__, int __val__, std::string __var_type__, int __sym_type__) : flag_is_const(__is_const__), val(__val__), var_type(__var_type__), sym_type(__sym_type__), koopa_var_count()
-	{
-		if (__is_const__ == false)
-		{
-			koopa_var_count = unused_koopa_var_count;
-		}
-		else
-		{
-			koopa_var_count = -1;
-		}
-		dim = 0;
-		for (int i = 0; i < var_type.length(); ++i)
-			if (var_type[i] == '[' || var_type[i] == '*')
-				++dim;
-	};
-	Variate()
-	{
-	}
-};
-
-#pragma endregion Variate
-
-#pragma region Function
-
-class Function
-{
-public:
-	std::string ret_type;
-	std::vector<FuncFParamAST *> params_type;
-	Function()
-	{
-	}
-	Function(std::string __ret_type__, std::vector<FuncFParamAST *> __params_type__)
-	{
-		ret_type = __ret_type__;
-		params_type = __params_type__;
-	}
-};
-
-#pragma endregion Function
-
-#pragma region Symbol
-
-struct Symbol
-{
-	union
-	{
-		Variate *var;
-		Function *func;
-	} data;
-	int tag;
-	Symbol(Variate __variate__)
-	{
-		tag = 0;
-		data.var = new Variate();
-		*data.var = __variate__;
-	}
-	Symbol(Function __function__)
-	{
-		tag = 1;
-		data.func = new Function();
-		*data.func = __function__;
-	}
-};
-
-#pragma endregion Symbol
-
-#pragma region SymbolTable
-
-class SymbolTable
-{
-public:
-	SymbolTable *father_symbol_table;
-	std::map<std::string, std::unique_ptr<Symbol>> map_symbol_table;
-	std::vector<std::unique_ptr<SymbolTable>> vec_child_symbol_table;
-	SymbolTable *AddSymbolTable()
-	{
-		std::unique_ptr<SymbolTable> new_symbol_table(new SymbolTable);
-		new_symbol_table->father_symbol_table = this;
-		vec_child_symbol_table.push_back(std::move(new_symbol_table));
-		return vec_child_symbol_table.back().get();
-	}
-	auto find(std::string ident)
-	{
-		auto iter = map_symbol_table.find(ident);
-		if (iter == map_symbol_table.end())
-		{
-			if (father_symbol_table == NULL)
-				return map_symbol_table.end();
-			else
-				return father_symbol_table->find(ident);
-		}
-		else
-		{
-			return iter;
-		}
-	}
-	auto insert(std::string __ident__, Variate __variate__)
-	{
-		return map_symbol_table.insert(make_pair(__ident__, std::unique_ptr<Symbol>(new Symbol(__variate__))));
-	}
-	auto insert(std::string __ident__, Function __function__)
-	{
-		return map_symbol_table.insert(make_pair(__ident__, std::unique_ptr<Symbol>(new Symbol(__function__))));
-	}
-	void print_symbol_table()
-	{
-		auto iter = map_symbol_table.begin();
-		if (iter == map_symbol_table.end())
-		{
-			printf("empty\n");
-			return;
-		}
-		while (iter != map_symbol_table.end())
-		{
-			printf("%s: ", iter->first.c_str());
-			if (iter->second->tag == 0)
-				printf("variate\n");
-			else
-				printf("function\n");
-			++iter;
-		}
-	}
-};
-
-#pragma endregion SymbolTable
-
-#pragma region SymbolTableTree
-
-class SymbolTableTree
-{
-public:
-	std::unique_ptr<SymbolTable> symbol_table_tree_root;
-};
-
-#pragma endregion SymbolTableTree
-
-#pragma endregion SymbolTable
-
-#pragma region SpaceNeeded
 
 struct SpaceNeeded
 {
@@ -283,228 +91,13 @@ struct SpaceNeeded
 	SpaceNeeded() : total_needed(0), return_address_needed(0), params_needed(0), variate_needed(0){};
 };
 
-#pragma endregion SpaceNeeded
-
-#pragma region AST_Op
-
-#pragma region LVal
-
-class LValAST : public BaseAST
-{
-public:
-	union
-	{
-		LValCase0 *l_val_case_0;
-		LValCase1 *l_val_case_1;
-	} l_val_union;
-	CalData data;
-	void Dump(int ctl = 0) override
-	{
-
-		if (debug)
-			print_dump("LVal", DEBUG_BEGIN);
-		++depth_dump;
-		switch (tag)
-		{
-		case (0):
-		{
-			auto iter = cur_symbol_table->find(l_val_union.l_val_case_0->ident);
-			if (iter == symbol_table_tree.symbol_table_tree_root->map_symbol_table.end() || iter->second->tag != 0)
-			{
-				iter = cur_symbol_table->find(std::string("%") + (l_val_union.l_val_case_0->ident.c_str() + 1));
-				if (iter == symbol_table_tree.symbol_table_tree_root->map_symbol_table.end() || iter->second->tag != 0)
-				{
-					printf("%s: not found\n", l_val_union.l_val_case_0->ident.c_str());
-					printf("%s\n", k_str.c_str());
-					assert(false);
-				}
-			}
-			if (iter->second->data.var->flag_is_const == IS_CONST)
-			{
-				data.is_num = true;
-				data.count = -1;
-				data.val = iter->second->data.var->val;
-			}
-			else if (iter->second->data.var->var_type == "*i32" || iter->second->data.var->var_type.substr(0, 2) == "**")
-			{
-				k_str += ("    %" + itostr(unused_koopa_count) + " = load " + iter->first + '_' + itostr(iter->second->data.var->koopa_var_count) + '\n');
-				data.is_num = false;
-				data.count = unused_koopa_count;
-				++unused_koopa_count;
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			}
-			else if (iter->second->data.var->var_type.substr(0, 2) == "*[")
-			{
-				k_str += ("    %" + itostr(unused_koopa_count) + " = getelemptr " + iter->first + '_' + itostr(iter->second->data.var->koopa_var_count) + ", 0\n");
-				data.is_num = false;
-				data.count = unused_koopa_count;
-				++unused_koopa_count;
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			}
-			else
-			{
-				printf("%s\n", iter->second->data.var->var_type.c_str());
-				assert(false);
-			}
-			break;
-		}
-		case (1):
-		{
-			auto iter = cur_symbol_table->find(l_val_union.l_val_case_1->ident);
-			for (int i = 0; i < l_val_union.l_val_case_1->vec_exp.size(); ++i)
-				l_val_union.l_val_case_1->vec_exp[i]->Dump();
-			if (iter == symbol_table_tree.symbol_table_tree_root->map_symbol_table.end() || iter->second->tag != 0)
-			{
-				iter = cur_symbol_table->find(std::string("%") + (l_val_union.l_val_case_0->ident.c_str() + 1));
-				if (iter == symbol_table_tree.symbol_table_tree_root->map_symbol_table.end() || iter->second->tag != 0)
-					assert(false);
-			}
-			if (iter->second->data.var->var_type.substr(0, 2) == "**")
-			{
-				k_str += ("    %" + itostr(unused_koopa_count) + " = load " + iter->first + '_' + itostr(iter->second->data.var->koopa_var_count) + '\n');
-				++unused_koopa_count;
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			}
-			if (iter->second->data.var->var_type.substr(0, 2) == "*[")
-				k_str += "    %" + itostr(unused_koopa_count) + " = getelemptr " + iter->first + '_' + itostr(iter->second->data.var->koopa_var_count) + ", ";
-			else if (iter->second->data.var->var_type.substr(0, 2) == "**")
-				k_str += "    %" + itostr(unused_koopa_count) + " = getptr %" + itostr(unused_koopa_count - 1) + ", ";
-			else
-			{
-				printf("%s\n", iter->second->data.var->var_type.c_str());
-				assert(false);
-			}
-			l_val_union.l_val_case_1->vec_exp[0]->data.print_data_to_k_str();
-			k_str += '\n';
-			++unused_koopa_count;
-			cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-
-			for (int i = 1; i < l_val_union.l_val_case_1->vec_exp.size(); ++i)
-			{
-				k_str += "    %" + itostr(unused_koopa_count) + " = getelemptr %" + itostr(unused_koopa_count - 1) + ", ";
-				l_val_union.l_val_case_1->vec_exp[i]->data.print_data_to_k_str();
-				k_str += '\n';
-				++unused_koopa_count;
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			}
-			if (iter->second->data.var->dim == l_val_union.l_val_case_1->vec_exp.size() + 1)
-				k_str += ("    %" + itostr(unused_koopa_count) + " = load " + "%" + itostr(unused_koopa_count - 1) + '\n');
-			else
-				k_str += ("    %" + itostr(unused_koopa_count) + " = getelemptr %" + itostr(unused_koopa_count - 1) + ", 0\n");
-			data.is_num = false;
-			data.count = unused_koopa_count;
-			++unused_koopa_count;
-			cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			break;
-		}
-		default:
-		{
-			assert(false);
-			break;
-		}
-		}
-		--depth_dump;
-		if (debug)
-			print_dump("LVal", DEBUG_END);
-	}
-	LValAST(int __tag__)
-	{
-		tag = __tag__;
-		switch (tag)
-		{
-		case 0:
-			l_val_union.l_val_case_0 = new LValCase0();
-			break;
-		case 1:
-			l_val_union.l_val_case_1 = new LValCase1();
-			break;
-		default:
-			assert(false);
-		}
-		return;
-	}
-};
-
-#pragma endregion LVal
-
-#pragma region LAnd
-
-class LAndOpAST : public BaseOpAST
-{
-public:
-	char op[3];
-	void Dump(int ctl = 0) override
-	{
-		int temp_val = 0;
-		if (debug)
-			print_dump("LAndOp", DEBUG_BEGIN);
-		temp_val = lhs.val && rhs.val;
-		if (is_calculating_const_exp == false)
-		{
-
-			k_str += "    %";
-			k_str += itostr(unused_koopa_count);
-			k_str += " = ne ";
-			if (lhs.is_num == true)
-			{
-				k_str += itostr(lhs.val);
-			}
-			else
-			{
-				k_str += '%';
-				k_str += itostr(lhs.count);
-			}
-			k_str += ", 0\n";
-			++unused_koopa_count;
-			if (cur_symbol_table != symbol_table_tree.symbol_table_tree_root.get())
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			k_str += "    %";
-			k_str += itostr(unused_koopa_count);
-			k_str += " = ne ";
-			if (rhs.is_num == true)
-			{
-				k_str += itostr(rhs.val);
-			}
-			else
-			{
-				k_str += '%';
-				k_str += itostr(rhs.count);
-			}
-			k_str += ", 0\n";
-			++unused_koopa_count;
-			if (cur_symbol_table != symbol_table_tree.symbol_table_tree_root.get())
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-			k_str += "    %";
-			k_str += itostr(unused_koopa_count);
-			k_str += " = and %";
-			k_str += itostr(unused_koopa_count - 1);
-			k_str += ", %";
-			k_str += itostr(unused_koopa_count - 2);
-			k_str += '\n';
-			result.is_num = false;
-			result.count = unused_koopa_count;
-			++unused_koopa_count;
-			if (cur_symbol_table != symbol_table_tree.symbol_table_tree_root.get())
-				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
-		}
-		result.val = temp_val;
-		if (debug)
-			print_dump("LAndOp", DEBUG_END);
-	}
-};
-
-#pragma endregion LAnd
-
-#pragma region Unary
-
 class UnaryOpAST : public BaseOpAST
 {
 public:
 	char op;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("UnaryOp", DEBUG_BEGIN);
+		PRINT_DUMP("UnaryOp", DEBUG_BEGIN);
 		printf("%c\n", op);
 		if (op == '+')
 		{
@@ -561,14 +154,9 @@ public:
 				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
 		}
 	END_OF_DUMP:
-		if (debug)
-			print_dump("UnaryOp", DEBUG_END);
+		PRINT_DUMP("UnaryOp", DEBUG_END);
 	}
 };
-
-#pragma endregion Unary
-
-#pragma region Mul
 
 class MulOpAST : public BaseOpAST
 {
@@ -576,8 +164,7 @@ public:
 	char op;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("MulOp", DEBUG_BEGIN);
+		PRINT_DUMP("MulOp", DEBUG_BEGIN);
 		if (is_calculating_const_exp == false)
 		{
 			k_str += "    %";
@@ -635,14 +222,10 @@ public:
 			if (cur_symbol_table != symbol_table_tree.symbol_table_tree_root.get())
 				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
 		}
-		if (debug)
-			print_dump("MulOp", DEBUG_END);
+		PRINT_DUMP("MulOp", DEBUG_END);
 	}
 };
 
-#pragma endregion Mul
-
-#pragma region Add
 class AddOpAST : public BaseOpAST
 {
 public:
@@ -650,8 +233,7 @@ public:
 	void Dump(int ctl = 0) override
 	{
 		int temp_val = 0;
-		if (debug)
-			print_dump("AddOp", DEBUG_BEGIN);
+		PRINT_DUMP("AddOp", DEBUG_BEGIN);
 		if (is_calculating_const_exp == false)
 		{
 			k_str += "    %";
@@ -704,14 +286,9 @@ public:
 				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
 		}
 		result.val = temp_val;
-		if (debug)
-			print_dump("AddOp", DEBUG_END);
+		PRINT_DUMP("AddOp", DEBUG_END);
 	}
 };
-
-#pragma endregion Add
-
-#pragma region Rel
 
 class RelOpAST : public BaseOpAST
 {
@@ -721,8 +298,7 @@ public:
 	void Dump(int ctl = 0) override
 	{
 		int temp_val = 0;
-		if (debug)
-			print_dump("RelOp", DEBUG_BEGIN);
+		PRINT_DUMP("RelOp", DEBUG_BEGIN);
 		if (is_calculating_const_exp == false)
 		{
 			k_str += "    %";
@@ -782,8 +358,7 @@ public:
 				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
 		}
 		result.val = temp_val;
-		if (debug)
-			print_dump("RelOp", DEBUG_END);
+		PRINT_DUMP("RelOp", DEBUG_END);
 	}
 };
 
@@ -797,8 +372,7 @@ public:
 	char op[3];
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("LOrOp", DEBUG_BEGIN);
+		PRINT_DUMP("LOrOp", DEBUG_BEGIN);
 		result.val = lhs.val || rhs.val;
 		if (is_calculating_const_exp == false)
 		{
@@ -843,14 +417,9 @@ public:
 				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
 		}
 
-		if (debug)
-			print_dump("LOrOp", DEBUG_END);
+		PRINT_DUMP("LOrOp", DEBUG_END);
 	}
 };
-
-#pragma endregion LOr
-
-#pragma region Eq
 
 class EqOpAST : public BaseOpAST
 {
@@ -859,8 +428,7 @@ public:
 	void Dump(int ctl = 0) override
 	{
 		int temp_val = 0;
-		if (debug)
-			print_dump("EqOp", DEBUG_BEGIN);
+		PRINT_DUMP("EqOp", DEBUG_BEGIN);
 		if (is_calculating_const_exp == false)
 		{
 			k_str += "    %";
@@ -908,18 +476,9 @@ public:
 				cur_map_iter_for_func_space_needed->second.variate_needed += return_type_space("int");
 		}
 		result.val = temp_val;
-		if (debug)
-			print_dump("EqOp", DEBUG_END);
+		PRINT_DUMP("EqOp", DEBUG_END);
 	}
 };
-
-#pragma endregion Eq
-
-#pragma endregion AST_Op
-
-#pragma region AST_Exp
-
-#pragma region Number
 
 class NumberAST : public BaseExpAST
 {
@@ -927,19 +486,13 @@ public:
 	std::string num;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("Number", DEBUG_BEGIN);
+		PRINT_DUMP("Number", DEBUG_BEGIN);
 		data.is_num = true;
 		data.val = strtoi(num);
 		data.count = -1;
-		if (debug)
-			print_dump("Number", DEBUG_END);
+		PRINT_DUMP("Number", DEBUG_END);
 	}
 };
-
-#pragma endregion Number
-
-#pragma region Primary
 
 class PrimaryExpAST : public BaseExpAST
 {
@@ -952,8 +505,7 @@ public:
 	} primary_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("PrimaryExp", DEBUG_BEGIN);
+		PRINT_DUMP("PrimaryExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case 0: // primaryexp
@@ -985,8 +537,7 @@ public:
 			assert(false);
 		}
 		}
-		if (debug)
-			print_dump("PrimaryExp", DEBUG_END);
+		PRINT_DUMP("PrimaryExp", DEBUG_END);
 	}
 	PrimaryExpAST(int __tag__)
 	{
@@ -1025,8 +576,7 @@ public:
 	} unary_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("UnaryExp", DEBUG_BEGIN);
+		PRINT_DUMP("UnaryExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case 0: // primaryexp
@@ -1088,8 +638,7 @@ public:
 		default:
 			assert(false);
 		}
-		if (debug)
-			print_dump("UnaryExp", DEBUG_END);
+		PRINT_DUMP("UnaryExp", DEBUG_END);
 	}
 	UnaryExpAST(int __tag__)
 	{
@@ -1112,10 +661,6 @@ public:
 	}
 };
 
-#pragma endregion Unary
-
-#pragma region Mul
-
 class MulExpAST : public BaseExpAST
 {
 public:
@@ -1126,8 +671,7 @@ public:
 	} mul_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("MulExp", DEBUG_BEGIN);
+		PRINT_DUMP("MulExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case 0:
@@ -1154,8 +698,7 @@ public:
 		default:
 			assert(false);
 		}
-		if (debug)
-			print_dump("MulExp", DEBUG_END);
+		PRINT_DUMP("MulExp", DEBUG_END);
 	}
 	MulExpAST(int __tag__)
 	{
@@ -1189,8 +732,7 @@ public:
 	} add_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("AddExp", DEBUG_BEGIN);
+		PRINT_DUMP("AddExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -1219,8 +761,7 @@ public:
 			break;
 		}
 		}
-		if (debug)
-			print_dump("AddExp", DEBUG_END);
+		PRINT_DUMP("AddExp", DEBUG_END);
 	}
 	AddExpAST(int __tag__)
 	{
@@ -1240,10 +781,6 @@ public:
 	}
 };
 
-#pragma endregion Add
-
-#pragma region Rel
-
 class RelExpAST : public BaseExpAST
 {
 public:
@@ -1254,8 +791,7 @@ public:
 	} rel_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("RelExp", DEBUG_BEGIN);
+		PRINT_DUMP("RelExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -1287,8 +823,7 @@ public:
 			break;
 		}
 		}
-		if (debug)
-			print_dump("RelExp", DEBUG_END);
+		PRINT_DUMP("RelExp", DEBUG_END);
 	}
 	RelExpAST(int __tag__)
 	{
@@ -1308,10 +843,6 @@ public:
 	}
 };
 
-#pragma endregion Rel
-
-#pragma region Eq
-
 class EqExpAST : public BaseExpAST
 {
 public:
@@ -1322,8 +853,7 @@ public:
 	} eq_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("EqExp", DEBUG_BEGIN);
+		PRINT_DUMP("EqExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case 0:
@@ -1348,8 +878,7 @@ public:
 		default:
 			assert(false);
 		}
-		if (debug)
-			print_dump("EqExp", DEBUG_END);
+		PRINT_DUMP("EqExp", DEBUG_END);
 	}
 	EqExpAST(int __tag__)
 	{
@@ -1369,10 +898,6 @@ public:
 	}
 };
 
-#pragma endregion Eq
-
-#pragma region LAnd
-
 class LAndExpAST : public BaseExpAST
 {
 public:
@@ -1383,8 +908,7 @@ public:
 	} l_and_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("LAndExp", DEBUG_BEGIN);
+		PRINT_DUMP("LAndExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -1475,8 +999,7 @@ public:
 		default:
 			assert(false);
 		}
-		if (debug)
-			print_dump("LAndExp", DEBUG_END);
+		PRINT_DUMP("LAndExp", DEBUG_END);
 	}
 	LAndExpAST(int __tag__)
 	{
@@ -1510,8 +1033,7 @@ public:
 	} l_or_exp_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("LOrExp", DEBUG_BEGIN);
+		PRINT_DUMP("LOrExp", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -1601,8 +1123,7 @@ public:
 		default:
 			assert(false);
 		}
-		if (debug)
-			print_dump("LOrExp", DEBUG_END);
+		PRINT_DUMP("LOrExp", DEBUG_END);
 	}
 	LOrExpAST(int __tag__)
 	{
@@ -1632,8 +1153,7 @@ public:
 	std::unique_ptr<BaseExpAST> l_or_exp;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("Exp", DEBUG_BEGIN);
+		PRINT_DUMP("Exp", DEBUG_BEGIN);
 		++depth_dump;
 		if (cur_symbol_table == symbol_table_tree.symbol_table_tree_root.get())
 			is_calculating_const_exp = true;
@@ -1641,8 +1161,7 @@ public:
 		is_calculating_const_exp = false;
 		data = l_or_exp->data;
 		--depth_dump;
-		if (debug)
-			print_dump("Exp", DEBUG_END);
+		PRINT_DUMP("Exp", DEBUG_END);
 	}
 };
 
@@ -1656,14 +1175,12 @@ public:
 	std::unique_ptr<BaseExpAST> exp;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("ConstExp", DEBUG_BEGIN);
+		PRINT_DUMP("ConstExp", DEBUG_BEGIN);
 		++depth_dump;
 		exp->Dump();
 		data = exp->data;
 		--depth_dump;
-		if (debug)
-			print_dump("ConstExp", DEBUG_END);
+		PRINT_DUMP("ConstExp", DEBUG_END);
 	}
 };
 
@@ -1682,20 +1199,14 @@ public:
 	BTypeAST(){};
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("BType", DEBUG_BEGIN);
+		PRINT_DUMP("BType", DEBUG_BEGIN);
 		if (type == "int")
 		{
 			// k_str += "i32";
 		}
-		if (debug)
-			print_dump("BType", DEBUG_END);
+		PRINT_DUMP("BType", DEBUG_END);
 	}
 };
-
-#pragma endregion BType
-
-#pragma region ConstInitVal
 
 class ConstInitValAST : public BaseAST
 {
@@ -1707,8 +1218,7 @@ public:
 	} const_init_val_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("ConstInitVal", DEBUG_BEGIN);
+		PRINT_DUMP("ConstInitVal", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -1736,8 +1246,7 @@ public:
 			assert(false);
 			break;
 		}
-		if (debug)
-			print_dump("ConstInitVal", DEBUG_END);
+		PRINT_DUMP("ConstInitVal", DEBUG_END);
 	}
 	ConstInitValAST(int __tag__)
 	{
@@ -1873,8 +1382,7 @@ public:
 	}
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("ConstDef", DEBUG_BEGIN);
+		PRINT_DUMP("ConstDef", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -1927,8 +1435,7 @@ public:
 			assert(false);
 			break;
 		}
-		if (debug)
-			print_dump("ConstDef", DEBUG_END);
+		PRINT_DUMP("ConstDef", DEBUG_END);
 	}
 	void Init()
 	{
@@ -2033,10 +1540,6 @@ public:
 	}
 };
 
-#pragma endregion ConstDef
-
-#pragma region ConstDecl
-
 class ConstDeclAST : public BaseAST
 {
 public:
@@ -2044,8 +1547,7 @@ public:
 	std::vector<std::unique_ptr<BaseAST>> vec_const_def;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("ConstDecl", DEBUG_BEGIN);
+		PRINT_DUMP("ConstDecl", DEBUG_BEGIN);
 		++depth_dump;
 		b_type->Dump();
 		--depth_dump;
@@ -2057,8 +1559,7 @@ public:
 			(*iter)->Dump();
 		}
 		--depth_dump;
-		if (debug)
-			print_dump("ConstDecl", DEBUG_END);
+		PRINT_DUMP("ConstDecl", DEBUG_END);
 	}
 };
 
@@ -2076,8 +1577,7 @@ public:
 	} decl_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("Decl", DEBUG_BEGIN);
+		PRINT_DUMP("Decl", DEBUG_BEGIN);
 		++depth_dump;
 		switch (tag)
 		{
@@ -2098,8 +1598,7 @@ public:
 		}
 		}
 		--depth_dump;
-		if (debug)
-			print_dump("Decl", DEBUG_END);
+		PRINT_DUMP("Decl", DEBUG_END);
 	}
 	DeclAST(int __tag__)
 	{
@@ -2118,10 +1617,6 @@ public:
 		return;
 	}
 };
-
-#pragma endregion Decl
-
-#pragma region CompUnitEle
 
 class CompUnitEle : public BaseAST
 {
@@ -2156,10 +1651,6 @@ public:
 	}
 };
 
-#pragma endregion CompUnitEle
-
-#pragma region CompUnit
-
 class CompUnitAST : public BaseAST
 {
 public:
@@ -2168,15 +1659,13 @@ public:
 	std::unique_ptr<BaseAST> next_comp_unit_ele;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("CompUnit", DEBUG_BEGIN);
+		PRINT_DUMP("CompUnit", DEBUG_BEGIN);
 		++depth_dump;
 		comp_unit_ele->Dump();
 		if (next_comp_unit_ele != NULL)
 			next_comp_unit_ele->Dump();
 		--depth_dump;
-		if (debug)
-			print_dump("CompUnit", DEBUG_END);
+		PRINT_DUMP("CompUnit", DEBUG_END);
 	}
 };
 
@@ -2278,10 +1767,6 @@ public:
 	}
 };
 
-#pragma endregion FuncFParam
-
-#pragma region FuncFParams
-
 class FuncFParamsAST : public BaseAST
 {
 public:
@@ -2322,14 +1807,12 @@ public:
 	FuncTypeAST(){};
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("FuncType", DEBUG_BEGIN);
+		PRINT_DUMP("FuncType", DEBUG_BEGIN);
 		if (type == "int")
 			k_str += ": i32\n";
 		else if (type == "void")
 			k_str += '\n';
-		if (debug)
-			print_dump("FuncType", DEBUG_END);
+		PRINT_DUMP("FuncType", DEBUG_END);
 	}
 };
 
@@ -2346,8 +1829,7 @@ public:
 	std::unique_ptr<BaseAST> func_f_params;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("FuncDef", DEBUG_BEGIN);
+		PRINT_DUMP("FuncDef", DEBUG_BEGIN);
 		last_ins_is_ret = false;
 		auto temp_symbol_table = cur_symbol_table;
 		cur_symbol_table->insert(ident, Function(dynamic_cast<FuncTypeAST *>(func_type.get())->type, dynamic_cast<FuncFParamsAST *>(func_f_params.get())->func_f_params));
@@ -2381,8 +1863,7 @@ public:
 		int A = cur_map_iter_for_func_space_needed->second.params_needed;
 		cur_map_iter_for_func_space_needed->second.total_needed = (S + R + A + 15) / 16;
 		cur_map_iter_for_func_space_needed->second.total_needed *= 16;
-		if (debug)
-			print_dump("FuncDef", DEBUG_END);
+		PRINT_DUMP("FuncDef", DEBUG_END);
 	}
 };
 
@@ -2396,16 +1877,14 @@ public:
 	std::vector<std::unique_ptr<BaseAST>> vec_block_item;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("Block", DEBUG_BEGIN);
+		PRINT_DUMP("Block", DEBUG_BEGIN);
 		for (auto iter = vec_block_item.begin(); iter != vec_block_item.end(); ++iter)
 		{
 			++depth_dump;
 			(*iter)->Dump();
 			--depth_dump;
 		}
-		if (debug)
-			print_dump("Block", DEBUG_END);
+		PRINT_DUMP("Block", DEBUG_END);
 	}
 };
 
@@ -2432,12 +1911,7 @@ public:
 	} stmt_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-		{
-			print_dump("Stmt", DEBUG_BEGIN);
-			print_ident(depth_dump);
-			printf("tag:%d\n", tag);
-		}
+		PRINT_DUMP("Stmt", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -2718,8 +2192,7 @@ public:
 			break;
 		}
 		}
-		if (debug)
-			print_dump("Stmt", DEBUG_END);
+		PRINT_DUMP("Stmt", DEBUG_END);
 	}
 	StmtAST(int __tag__)
 	{
@@ -2819,8 +2292,7 @@ public:
 	} init_val_union;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("InitVal", DEBUG_BEGIN);
+		PRINT_DUMP("InitVal", DEBUG_BEGIN);
 		++depth_dump;
 		switch (tag)
 		{
@@ -2845,8 +2317,7 @@ public:
 			break;
 		}
 		--depth_dump;
-		if (debug)
-			print_dump("InitVal", DEBUG_END);
+		PRINT_DUMP("InitVal", DEBUG_END);
 	}
 	InitValAST(int __tag__)
 	{
@@ -2866,10 +2337,6 @@ public:
 	}
 };
 
-#pragma endregion InitVal
-
-#pragma region BlockItem
-
 class BlockItemAST : public BaseAST
 {
 public:
@@ -2879,8 +2346,7 @@ public:
 	std::unique_ptr<BaseAST> stmt;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("BlockItem", DEBUG_BEGIN);
+		PRINT_DUMP("BlockItem", DEBUG_BEGIN);
 		if (last_ins_is_ret == true)
 		{
 			k_str += ("  %block_" + itostr(unused_koopa_label_count) + ":\n");
@@ -2893,8 +2359,7 @@ public:
 		else
 			stmt->Dump();
 		--depth_dump;
-		if (debug)
-			print_dump("BlockItem", DEBUG_END);
+		PRINT_DUMP("BlockItem", DEBUG_END);
 	}
 };
 
@@ -2909,8 +2374,7 @@ public:
 	std::vector<std::unique_ptr<BaseAST>> vec_var_def;
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("VarDecl", DEBUG_BEGIN);
+		PRINT_DUMP("VarDecl", DEBUG_BEGIN);
 		++depth_dump;
 		b_type->Dump();
 		--depth_dump;
@@ -2920,8 +2384,7 @@ public:
 			(*iter)->Dump();
 		}
 		--depth_dump;
-		if (debug)
-			print_dump("VarDecl", DEBUG_END);
+		PRINT_DUMP("VarDecl", DEBUG_END);
 	}
 };
 
@@ -3042,8 +2505,7 @@ public:
 	}
 	void Dump(int ctl = 0) override
 	{
-		if (debug)
-			print_dump("ConstDef", DEBUG_BEGIN);
+		PRINT_DUMP("ConstDef", DEBUG_BEGIN);
 		switch (tag)
 		{
 		case (0):
@@ -3143,8 +2605,7 @@ public:
 			assert(false);
 			break;
 		}
-		if (debug)
-			print_dump("ConstDef", DEBUG_END);
+		PRINT_DUMP("ConstDef", DEBUG_END);
 	}
 	void Init()
 	{
