@@ -1,6 +1,6 @@
 #include "Decl.h"
 
-void DeclAST::Dump(int ctl = 0)
+void DeclAST::Dump(int ctl)
 {
     PRINT_DUMP("Decl", DEBUG_BEGIN);
     ++depth_dump;

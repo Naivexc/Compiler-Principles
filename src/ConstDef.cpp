@@ -1,4 +1,5 @@
 #include "ConstDef.h"
+#include <cassert>
 std::string ConstDefCase1::return_type()
 {
     std::string arr_type = "i32";
@@ -101,7 +102,7 @@ void ConstDefAST::InitLocalArrayInKoopa(int dim, std::string str_src)
         assert(false);
     }
 }
-void ConstDefAST::Dump(int ctl = 0)
+void ConstDefAST::Dump(int ctl)
 {
     PRINT_DUMP("ConstDef", DEBUG_BEGIN);
     switch (tag)
@@ -109,7 +110,7 @@ void ConstDefAST::Dump(int ctl = 0)
     case (0):
     {
         ++depth_dump;
-        size = 0; //????????????????
+        size = 0;
         const_def_union.const_def_case_0->const_init_val->Dump();
         const_def_union.const_def_case_0->data = dynamic_cast<ConstInitValAST *>(const_def_union.const_def_case_0->const_init_val.get())->const_init_val_union.const_init_val_case_0->data;
         --depth_dump;

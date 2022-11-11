@@ -4,6 +4,7 @@
 #include "Base.h"
 #include <vector>
 #include <cassert>
+#include <memory>
 
 extern bool is_calculating_const_exp;
 

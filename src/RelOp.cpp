@@ -1,6 +1,6 @@
 #include "RelOp.h"
-
-void RelOpAST::Dump(int ctl = 0)
+#include <string.h>
+void RelOpAST::Dump(int ctl)
 {
     int temp_val = 0;
     PRINT_DUMP("RelOp", DEBUG_BEGIN);
@@ -10,25 +10,25 @@ void RelOpAST::Dump(int ctl = 0)
         k_str += itostr(unused_koopa_count);
         k_str += " = ";
     }
-    if (str_is_same(op, ">") == true)
+    if (strcmp(op, ">") == 0)
     {
         if (is_calculating_const_exp == false)
             k_str += "gt ";
         temp_val = lhs.val > rhs.val;
     }
-    else if (str_is_same(op, "<") == true)
+    else if (strcmp(op, "<") == 0)
     {
         if (is_calculating_const_exp == false)
             k_str += "lt ";
         temp_val = lhs.val < rhs.val;
     }
-    else if (str_is_same(op, ">=") == true)
+    else if (strcmp(op, ">=") == 0)
     {
         if (is_calculating_const_exp == false)
             k_str += "ge ";
         temp_val = lhs.val >= rhs.val;
     }
-    else if (str_is_same(op, "<=") == true)
+    else if (strcmp(op, "<=") == 0)
     {
         if (is_calculating_const_exp == false)
             k_str += "le ";

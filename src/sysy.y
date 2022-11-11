@@ -12,7 +12,6 @@
 #include <stack>
 #include <queue>
 #include "ast.h"
-// 声明 lexer 函数和错误处理函数
 int yylex();
 void yyerror(std::unique_ptr<class BaseAST> &ast, const char *s);
 std::stack<std::vector<BaseAST*>> temp_stack_vec_block_item;
@@ -33,16 +32,9 @@ using namespace std;
 
 %}
 
-// 定义 parser 函数和错误处理函数的附加参数
-// 我们需要返回一个字符串作为 AST, 所以我们把附加参数定义成字符串的智能指针
-// 解析完成后, 我们要手动修改这个参数, 把它设置成解析得到的字符串
+
 %parse-param { std::unique_ptr<class BaseAST> &ast }
 
-// yylval 的定义, 我们把它定义成了一个联合体 (union)
-// 因为 token 的值有的是字符串指针, 有的是整数
-// 之前我们在 lexer 中用到的 str_val 和 int_val 就是在这里被定义的
-// 至于为什么要用字符串指针而不直接用 string 或者 unique_ptr<string>?
-// 请自行 STFW 在 union 里写一个带析构函数的类会出现什么情况
 %union {
   std::string *str_val;
   int int_val;
@@ -55,8 +47,7 @@ using namespace std;
   char two_len_op_val[3];
 }
 
-// lexer 返回的所有 token 种类的声明
-// 注意 IDENT 和 INT_CONST 会返回 token 的值, 分别对应 str_val 和 int_val
+
 %token KW_RETURN KW_CONST KW_IF KW_ELSE KW_WHILE KW_BREAK KW_CONTINUE KW_INT KW_VOID    //KW:KeyWord
 %token <str_val> KW_TYPE
 %token <str_val> IDENT
@@ -69,7 +60,7 @@ using namespace std;
 %token <two_len_op_val> EQ_OP
 %token <two_len_op_val> LAND_OP
 %token <two_len_op_val> LOR_OP;
-// 非终结符的类型定义
+
 %type<base_comp_unit_ele_ast_val> CompUnitEle
 %type <base_ast_val> FuncDef Block Stmt 
 Decl ConstDecl ConstDef ConstInitVal BlockItem LVal
@@ -83,11 +74,6 @@ __Number__ __ConstExp__ __Exp__ __PrimaryExp__ __UnaryExp__ __MulExp__ __AddExp_
 __UnaryOp__ __MulOp__ __AddOp__ __RelOp__ __LAndOp__ __LOrOp__ __EqOp__
 %%
 
-// 开始符, CompUnit ::= FuncDef, 大括号后声明了解析完成后 parser 要做的事情
-// 之前我们定义了 FuncDef 会返回一个 str_val, 也就是字符串指针
-// 而 parser 一旦解析完 CompUnit, 就说明所有的 token 都被解析了, 即解析结束了
-// 此时我们应该把 FuncDef 返回的结果收集起来, 作为 AST 传给调用 parser 的函数
-// $1 指代规则里第一个符号的返回值, 也就是 FuncDef 的返回值
 CompUnit
   :  CompUnitEle  CompUnitEleSeq 
   {
@@ -114,7 +100,7 @@ CompUnit
   }
   ;
 
-CompUnitEle: __CompUnitEle__ {if(debug)printf("    Reduce:CompUnitEle\n");};
+CompUnitEle: __CompUnitEle__ {PRINT("    Reduce:CompUnitEle\n")};
 
 __CompUnitEle__
   :FuncDef
@@ -134,7 +120,7 @@ __CompUnitEle__
   ;
 
 
-CompUnitEleSeq: __CompUnitEleSeq__ {if(debug)printf("    Reduce:CompUnitEleSeq\n");};
+CompUnitEleSeq: __CompUnitEleSeq__ {PRINT("    Reduce:CompUnitEleSeq\n")};
 
 __CompUnitEleSeq__
   :  CompUnitEle {temp_stack_comp_unit.push($1);} CompUnitEleSeq 
@@ -145,17 +131,8 @@ __CompUnitEleSeq__
   }
   ;
 
-// FuncDef ::= FuncType IDENT '(' ')' Block;
-// 我们这里可以直接写 '(' 和 ')', 因为之前在 lexer 里已经处理了单个字符的情况
-// 解析完成后, 把这些符号的结果收集起来, 然后拼成一个新的字符串, 作为结果返回
-// $$ 表示非终结符的返回值, 我们可以通过给这个符号赋值的方法来返回结果
-// 你可能会问, FuncType, IDENT 之类的结果已经是字符串指针了
-// 为什么还要用 unique_ptr 接住它们, 然后再解引用, 把它们拼成另一个字符串指针呢
-// 因为所有的字符串指针都是我们 new 出来的, new 出来的内存一定要 delete
-// 否则会发生内存泄漏, 而 unique_ptr 这种智能指针可以自动帮我们 delete
-// 虽然此处你看不出用 unique_ptr 和手动 delete 的区别, 但当我们定义了 AST 之后
-// 这种写法会省下很多内存管理的负担
-FuncDef: __FuncDef__{if(debug)printf("    Reduce:FuncDef\n");};
+
+FuncDef: __FuncDef__{PRINT("    Reduce:FuncDef\n")};
 
 __FuncDef__
   :  KW_INT IDENT '(' ')' Block 
@@ -196,7 +173,7 @@ __FuncDef__
   }
   ;
 
-FuncFParams: __FuncFParams__{if(debug)printf("    Reduce:FuncFParams\n");};
+FuncFParams: __FuncFParams__{printf("    Reduce:FuncFParams\n");};
 
 __FuncFParams__
   : FuncFParam FuncFParamSeq
@@ -212,7 +189,7 @@ __FuncFParams__
   }
   ;
 
-FuncFParamSeq: __FuncFParamSeq__{if(debug)printf("    Reduce:FuncFParamSeq\n");};
+FuncFParamSeq: __FuncFParamSeq__{PRINT("    Reduce:FuncFParamSeq\n");};
 
 __FuncFParamSeq__
   : ',' FuncFParam FuncFParamSeq
@@ -224,7 +201,7 @@ __FuncFParamSeq__
   }
   ;
 
-FuncFParam: __FuncFParam__{if(debug)printf("    Reduce:FuncFParam\n");};
+FuncFParam: __FuncFParam__{PRINT("    Reduce:FuncFParam\n");};
 
 __FuncFParam__
   : KW_INT IDENT
@@ -250,9 +227,9 @@ __FuncFParam__
     $$=ast;
   }
   ;
-// 同上, 不再解释
 
-Block: __Block__{if(debug)printf("    Reduce:Block\n");};
+
+Block: __Block__{PRINT("    Reduce:Block\n");};
 
 __Block__
   : {temp_stack_vec_block_item.push(vector<BaseAST*>());}'{' BlockItemSeq '}' 
@@ -270,7 +247,7 @@ __Block__
   }
   ;
 
-BlockItemSeq: __BlockItemSeq__{if(debug)printf("    Reduce:BlockItemSeq\n");};
+BlockItemSeq: __BlockItemSeq__{PRINT("    Reduce:BlockItemSeq\n");};
 
 __BlockItemSeq__
   : BlockItem {temp_stack_vec_block_item.top().push_back($1);} BlockItemSeq
@@ -281,7 +258,7 @@ __BlockItemSeq__
   }
   ;
 
-Stmt: __Stmt__{if(debug)printf("    Reduce:Stmt\n");};
+Stmt: __Stmt__{PRINT("    Reduce:Stmt\n");};
 
 __Stmt__
   : MatchedStmt
@@ -294,7 +271,7 @@ __Stmt__
   }
   ;
 
-MatchedStmt: __MatchedStmt__{if(debug)printf("    Reduce:MatchedStmt\n");};
+MatchedStmt: __MatchedStmt__{PRINT("    Reduce:MatchedStmt\n");};
 
 __MatchedStmt__
   :  LVal '=' Exp ';'
@@ -374,7 +351,7 @@ __MatchedStmt__
   }
   ;
 
-OpenStmt: __OpenStmt__{if(debug)printf("    Reduce:OpenStmt\n");};
+OpenStmt: __OpenStmt__{PRINT("    Reduce:OpenStmt\n");};
 
 __OpenStmt__
   : KW_IF '(' Exp ')' Stmt
@@ -419,7 +396,7 @@ __OpenStmt__
   }
   ;
 
-WHILE: __WHILE__{if(debug)printf("    Reduce:WHILE\n");};
+WHILE: __WHILE__{PRINT("    Reduce:WHILE\n");};
 
 __WHILE__
   : KW_WHILE
@@ -428,7 +405,7 @@ __WHILE__
   }
   ;
 
-Exp: __Exp__{if(debug)printf("    Reduce:Exp\n");};
+Exp: __Exp__{PRINT("    Reduce:Exp\n");};
 
 __Exp__
   : LOrExp
@@ -439,7 +416,7 @@ __Exp__
   }
   ;
 
-UnaryExp: __UnaryExp__{if(debug)printf("    Reduce:UnaryExp\n");};
+UnaryExp: __UnaryExp__{PRINT("    Reduce:UnaryExp\n");};
 
 __UnaryExp__
   : PrimaryExp
@@ -471,7 +448,7 @@ __UnaryExp__
   }
   ;
 
-FuncRParams: __FuncRParams__{if(debug)printf("    Reduce:FuncRParams\n");};
+FuncRParams: __FuncRParams__{PRINT("    Reduce:FuncRParams\n");};
 
 __FuncRParams__
   : Exp FuncRParamSeq
@@ -489,7 +466,7 @@ __FuncRParams__
   }
   ;
 
-FuncRParamSeq: __FuncRParamSeq__{if(debug)printf("    Reduce:FuncRParamSeq\n");};
+FuncRParamSeq: __FuncRParamSeq__{PRINT("    Reduce:FuncRParamSeq\n");};
 
 __FuncRParamSeq__
   : ',' Exp FuncRParamSeq
@@ -501,7 +478,7 @@ __FuncRParamSeq__
   }
   ;
 
-PrimaryExp: __PrimaryExp__{if(debug)printf("    Reduce:PrimaryExp\n");};
+PrimaryExp: __PrimaryExp__{PRINT("    Reduce:PrimaryExp\n");};
 
 __PrimaryExp__
   : '(' Exp ')'
@@ -523,7 +500,7 @@ __PrimaryExp__
     $$=ast;
   }
 
-Number: __Number__{if(debug)printf("    Reduce:Number\n");};
+Number: __Number__{PRINT("    Reduce:Number\n");};
 
 __Number__
   : INT_CONST {
@@ -533,7 +510,7 @@ __Number__
   }
   ;
 
-UnaryOp: __UnaryOp__{if(debug)printf("    Reduce:UnaryOp\n");};
+UnaryOp: __UnaryOp__{PRINT("    Reduce:UnaryOp\n");};
 
 __UnaryOp__
   : UNARY_OP
@@ -550,7 +527,7 @@ __UnaryOp__
   }
   ;
 
-MulOp: __MulOp__{if(debug)printf("    Reduce:MulOp\n");};
+MulOp: __MulOp__{PRINT("    Reduce:MulOp\n");};
 
 __MulOp__
   : MUL_OP
@@ -561,7 +538,7 @@ __MulOp__
   }
   ;
 
-AddOp: __AddOp__{if(debug)printf("    Reduce:AddOp\n");};
+AddOp: __AddOp__{PRINT("    Reduce:AddOp\n");};
 
 __AddOp__
   : ADD_OP
@@ -572,7 +549,7 @@ __AddOp__
   }
   ;
 
-MulExp: __MulExp__{if(debug)printf("    Reduce:MulExp\n");};
+MulExp: __MulExp__{PRINT("    Reduce:MulExp\n");};
 
 __MulExp__
   : UnaryExp
@@ -591,7 +568,7 @@ __MulExp__
   }
   ;
 
-AddExp: __AddExp__{if(debug)printf("    Reduce:AddExp\n");};
+AddExp: __AddExp__{PRINT("    Reduce:AddExp\n");};
 
 __AddExp__
   : MulExp
@@ -610,7 +587,7 @@ __AddExp__
   }
   ;
 
-RelOp: __RelOp__{if(debug)printf("    Reduce:RelOp\n");};
+RelOp: __RelOp__{PRINT("    Reduce:RelOp\n");};
 
 __RelOp__
   : ONE_LEN_REL_OP
@@ -631,7 +608,7 @@ __RelOp__
   }
   ;
 
-LAndOp: __LAndOp__{if(debug)printf("    Reduce:LAndOp\n");};
+LAndOp: __LAndOp__{PRINT("    Reduce:LAndOp\n");};
 
 __LAndOp__
   : LAND_OP
@@ -644,7 +621,7 @@ __LAndOp__
   }
   ;
 
-LOrOp: __LOrOp__{if(debug)printf("    Reduce:LOrOp\n");};
+LOrOp: __LOrOp__{PRINT("    Reduce:LOrOp\n");};
 
 __LOrOp__
   : LOR_OP
@@ -657,7 +634,7 @@ __LOrOp__
   }
   ;
 
-EqOp: __EqOp__{if(debug)printf("    Reduce:EqOp\n");};
+EqOp: __EqOp__{PRINT("    Reduce:EqOp\n");};
 
 __EqOp__
   : EQ_OP
@@ -670,7 +647,7 @@ __EqOp__
   }
   ;
 
-RelExp: __RelExp__{if(debug)printf("    Reduce:RelExp\n");};
+RelExp: __RelExp__{PRINT("    Reduce:RelExp\n");};
 
 __RelExp__
   : AddExp
@@ -689,7 +666,7 @@ __RelExp__
   }
   ;
 
-EqExp: __EqExp__{if(debug)printf("    Reduce:EqExp\n");};
+EqExp: __EqExp__{PRINT("    Reduce:EqExp\n");};
 
 __EqExp__
   : RelExp
@@ -708,7 +685,7 @@ __EqExp__
   }
   ;
 
-LAndExp: __LAndExp__{if(debug)printf("    Reduce:LAndExp\n");};
+LAndExp: __LAndExp__{PRINT("    Reduce:LAndExp\n");};
 
 __LAndExp__
   : EqExp
@@ -727,7 +704,7 @@ __LAndExp__
   }
   ;
 
-LOrExp: __LOrExp__{if(debug)printf("    Reduce:LOrExp\n");};
+LOrExp: __LOrExp__{PRINT("    Reduce:LOrExp\n");};
 
 __LOrExp__
   : LAndExp
@@ -746,7 +723,7 @@ __LOrExp__
   }
   ;
   
-BlockItem: __BlockItem__{if(debug)printf("    Reduce:BlockItem\n");};
+BlockItem: __BlockItem__{PRINT("    Reduce:BlockItem\n");};
 
 __BlockItem__
   : Decl
@@ -764,7 +741,7 @@ __BlockItem__
   }
   ;
 
-Decl: __Decl__{if(debug)printf("    Reduce:Decl\n");};
+Decl: __Decl__{PRINT("    Reduce:Decl\n");};
 
 __Decl__
   :  ConstDecl
@@ -781,7 +758,7 @@ __Decl__
   }
   ;
 
-ConstDecl: __ConstDecl__{if(debug)printf("    Reduce:ConstDecl\n");};
+ConstDecl: __ConstDecl__{PRINT("    Reduce:ConstDecl\n");};
 
 __ConstDecl__
   :  KW_CONST KW_INT ConstDef {temp_vec_const_def.push_back($3);} ConstDefSeq';'
@@ -798,7 +775,7 @@ __ConstDecl__
   }
   ; 
 
-ConstDefSeq: __ConstDefSeq__{if(debug)printf("    Reduce:ConstDefSeq\n");};
+ConstDefSeq: __ConstDefSeq__{PRINT("    Reduce:ConstDefSeq\n");};
 
 __ConstDefSeq__
   : ',' ConstDef {temp_vec_const_def.push_back($2);} ConstDefSeq
@@ -808,7 +785,7 @@ __ConstDefSeq__
   ;
 
 
-ConstDef: __ConstDef__{if(debug)printf("    Reduce:ConstDef\n");};
+ConstDef: __ConstDef__{PRINT("    Reduce:ConstDef\n");};
 
 __ConstDef__
   : IDENT '=' ConstInitVal
@@ -836,7 +813,7 @@ __ConstDef__
 
 
 
-ConstInitVal: __ConstInitVal__{if(debug)printf("    Reduce:ConstInitVal\n");};
+ConstInitVal: __ConstInitVal__{PRINT("    Reduce:ConstInitVal\n");};
 
 __ConstInitVal__
   : ConstExp
@@ -877,7 +854,7 @@ ConstInitValSeq
   ;
 
 
-ConstExp: __ConstExp__{if(debug)printf("    Reduce:ConstExp\n");};
+ConstExp: __ConstExp__{PRINT("    Reduce:ConstExp\n");};
 
 __ConstExp__
   : Exp
@@ -888,7 +865,7 @@ __ConstExp__
   }
   ;
 
-LVal: __LVal__{if(debug)printf("    Reduce:LVal\n");};
+LVal: __LVal__{PRINT("    Reduce:LVal\n");};
 
 __LVal__
   : IDENT
@@ -929,7 +906,7 @@ ExpInArray_Prime
   ;
 
 
-VarDecl: __VarDecl__{if(debug)printf("    Reduce:VarDecl\n");};
+VarDecl: __VarDecl__{PRINT("    Reduce:VarDecl\n");};
 
 __VarDecl__
   :  KW_INT VarDef {temp_vec_var_def.push_back($2);} VarDefSeq';'
@@ -946,7 +923,7 @@ __VarDecl__
   }
   ; 
 
-VarDefSeq: __VarDefSeq__{if(debug)printf("    Reduce:VarDefSeq\n");};
+VarDefSeq: __VarDefSeq__{PRINT("    Reduce:VarDefSeq\n");};
 
 __VarDefSeq__
   : ',' VarDef {temp_vec_var_def.push_back($2);} VarDefSeq
@@ -974,7 +951,7 @@ ConstExpInArray_Prime
 
 
 
-VarDef: __VarDef__{if(debug)printf("    Reduce:VarDef\n");};
+VarDef: __VarDef__{PRINT("    Reduce:VarDef\n");};
 
 __VarDef__
   : IDENT
@@ -1022,7 +999,7 @@ __VarDef__
   }
   ;
 
-InitVal: __InitVal__{if(debug)printf("    Reduce:InitVal\n");};
+InitVal: __InitVal__{PRINT("    Reduce:InitVal\n");};
 
 __InitVal__
   : Exp
@@ -1064,8 +1041,7 @@ InitValSeq
 
 %%
 
-// 定义错误处理函数, 其中第二个参数是错误信息
-// parser 如果发生错误 (例如输入的程序出现了语法错误), 就会调用这个函数
+
 void yyerror(unique_ptr<class BaseAST> &ast, const char *s) {
   cerr << "error: " << s << endl;
 }

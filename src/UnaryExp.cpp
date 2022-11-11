@@ -5,7 +5,7 @@
 
 extern SymbolTable *cur_symbol_table;
 
-void UnaryExpAST::Dump(int ctl = 0) // override
+void UnaryExpAST::Dump(int ctl) // override
 {
     PRINT_DUMP("UnaryExp", DEBUG_BEGIN);
     switch (tag)

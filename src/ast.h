@@ -30,30 +30,27 @@
 #include "ConstDef.h"
 #include "Debug.h"
 #include "SymbolTable.h"
-#define IS_CONST true
-#define IS_NOT_CONST false
-#define STRONG 1
-#define WEAK 0
-#define GLOBAL 2
-#define UN_DEF -1
-#define GET_ARRAY_PTR 2
-#define NORMAL 0
-#define TAG_0 0
-#define TAG_1 1
-#define TAG_2 2
-#define TAG_3 3
-#define TAG_4 4
-#define TAG_5 5
-#define TAG_6 6
-#define TAG_7 7
-#define TAG_8 8
-#define TAG_9 9
-#define TAG_10 10
-#define DIM_0 0
-#define LINE(x)                 \
-	{                           \
-		printf("line:%d\n", x); \
-	}
+#include "CompUnit.h"
+#include "FuncDef.h"
+#include "FuncType.h"
+#include "FuncFParams.h"
+#include "Exp.h"
+#include "BType.h"
+#include "Block.h"
+#include "FuncRParams.h"
+#include "Number.h"
+#include "UnaryOp.h"
+#include "UnaryExp.h"
+#include "MulOp.h"
+#include "AddOp.h"
+#include "RelOp.h"
+#include "VarDecl.h"
+#include "ConstExp.h"
+#include "ConstDecl.h"
+#include "BlockItem.h"
+#include "EqOp.h"
+#include "LOrOp.h"
+#include "LAndOp.h"
 extern std::string itostr(int num);
 extern int strtoi(std::string str);
 extern std::string AST_name[];
@@ -82,12 +79,4 @@ extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_
 extern int return_type_space(std::string type);
 extern int max_int(int x, int y);
 
-struct SpaceNeeded
-{
-	int total_needed;
-	int return_address_needed;
-	int params_needed;
-	int variate_needed;
-	SpaceNeeded() : total_needed(0), return_address_needed(0), params_needed(0), variate_needed(0){};
-};
 #endif

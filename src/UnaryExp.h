@@ -2,7 +2,18 @@
 #define UNARY_EXP_H
 #include "Debug.h"
 #include "Base.h"
+#include "SymbolTable.h"
+#include "SpaceNeeded.h"
 #include <memory>
+
+extern SymbolTableTree symbol_table_tree;
+extern int32_t unused_koopa_count;
+extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
+extern std::string k_str;
+
+extern int32_t return_type_space(std::string type);
+extern std::string itostr(int num);
+
 struct UnaryExpCase0
 {
     std::unique_ptr<BaseExpAST> primary_exp;

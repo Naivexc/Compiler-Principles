@@ -1,6 +1,6 @@
-#include "LAndOpAST.h"
+#include "LAndOp.h"
 
-void LAndOpAST::Dump(int ctl = 0)
+void LAndOpAST::Dump(int ctl)
 {
     int temp_val = 0;
     PRINT_DUMP("LAndOp", DEBUG_BEGIN);

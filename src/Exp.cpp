@@ -1,6 +1,6 @@
 #include "Exp.h"
 
-void ExpAST::Dump(int ctl = 0)
+void ExpAST::Dump(int ctl)
 {
     PRINT_DUMP("Exp", DEBUG_BEGIN);
     ++depth_dump;

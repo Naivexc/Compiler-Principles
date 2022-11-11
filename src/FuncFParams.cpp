@@ -1,6 +1,7 @@
 #include "FuncFParams.h"
+#include <vector>
 
-void FuncFParamsAST::Dump(int ctl = 0)
+void FuncFParamsAST::Dump(int ctl)
 {
     if (func_f_params.empty())
         return;

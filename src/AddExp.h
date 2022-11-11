@@ -2,6 +2,7 @@
 #define ADD_EXP_H
 
 #include "Base.h"
+#include <memory>
 
 class AddExpCase0
 {

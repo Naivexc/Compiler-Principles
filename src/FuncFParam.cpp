@@ -1,4 +1,5 @@
 #include "FuncFParam.h"
+#include <cassert>
 
 std::string FuncFParamCase1::return_type()
 {
@@ -12,7 +13,7 @@ std::string FuncFParamCase1::return_type()
     return arr_type;
 }
 
-FuncFParamAST::FuncFParamAST(int __tag__, std::string __ident__ = "")
+FuncFParamAST::FuncFParamAST(int __tag__, std::string __ident__)
 {
     tag = __tag__;
     switch (tag)
@@ -34,7 +35,7 @@ FuncFParamAST::FuncFParamAST(int __tag__, std::string __ident__ = "")
     }
 };
 
-void FuncFParamAST::Dump(int ctl = 0)
+void FuncFParamAST::Dump(int ctl)
 {
     switch (tag)
     {

@@ -3,6 +3,7 @@
 
 #include "Base.h"
 #include "CompUnitEle.h"
+#include <memory>
 
 class CompUnitAST : public BaseAST
 {

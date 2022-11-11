@@ -1,6 +1,6 @@
 #include "AddExp.h"
-
-void AddExpAST::Dump(int ctl = 0)
+#include <cassert>
+void AddExpAST::Dump(int ctl)
 {
     PRINT_DUMP("AddExp", DEBUG_BEGIN);
     switch (tag)

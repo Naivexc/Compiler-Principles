@@ -1,6 +1,6 @@
 #include "FuncType.h"
 
-void FuncTypeAST::Dump(int ctl = 0)
+void FuncTypeAST::Dump(int ctl)
 {
     PRINT_DUMP("FuncType", DEBUG_BEGIN);
     if (type == "int")

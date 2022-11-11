@@ -1,6 +1,6 @@
 #include "LOrExp.h"
 
-void LOrExpAST::Dump(int ctl = 0)
+void LOrExpAST::Dump(int ctl)
 {
     PRINT_DUMP("LOrExp", DEBUG_BEGIN);
     switch (tag)

@@ -1,6 +1,6 @@
 #include "LAndExp.h"
 
-void LAndExpAST::Dump(int ctl = 0)
+void LAndExpAST::Dump(int ctl)
 {
     PRINT_DUMP("LAndExp", DEBUG_BEGIN);
     switch (tag)

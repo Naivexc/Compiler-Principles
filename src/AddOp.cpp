@@ -1,6 +1,6 @@
 #include "AddOp.h"
 
-void AddOpAST::Dump(int ctl = 0)
+void AddOpAST::Dump(int ctl)
 {
     int temp_val = 0;
     PRINT_DUMP("AddOp", DEBUG_BEGIN);

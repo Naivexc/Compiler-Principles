@@ -2,6 +2,8 @@
 #define VAR_DECL_H
 
 #include "Base.h"
+#include <memory>
+#include <vector>
 
 class VarDeclAST : public BaseAST
 {

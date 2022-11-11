@@ -1,6 +1,6 @@
 #include "RelExp.h"
 
-void RelExp::Dump(int ctl = 0)
+void RelExpAST::Dump(int ctl)
 {
     PRINT_DUMP("RelExp", DEBUG_BEGIN);
     switch (tag)
@@ -36,7 +36,7 @@ void RelExp::Dump(int ctl = 0)
     }
     PRINT_DUMP("RelExp", DEBUG_END);
 }
-RelExp::RelExpAST(int __tag__)
+RelExpAST::RelExpAST(int __tag__)
 {
     tag = __tag__;
     switch (tag)

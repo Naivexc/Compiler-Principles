@@ -1,6 +1,6 @@
 #include "CompUnit.h"
 
-void CompUnitAST::Dump(int ctl = 0)
+void CompUnitAST::Dump(int ctl)
 {
     PRINT_DUMP("CompUnit", DEBUG_BEGIN);
     ++depth_dump;

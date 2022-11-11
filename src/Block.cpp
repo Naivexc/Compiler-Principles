@@ -1,6 +1,6 @@
 #include "Block.h"
 
-void BlockAST::Dump(int ctl = 0)
+void BlockAST::Dump(int ctl)
 {
     PRINT_DUMP("Block", DEBUG_BEGIN);
     for (auto iter = vec_block_item.begin(); iter != vec_block_item.end(); ++iter)

@@ -1,6 +1,6 @@
 #include "FuncDef.h"
 
-void FuncDefAST::Dump(int ctl = 0)
+void FuncDefAST::Dump(int ctl)
 {
     PRINT_DUMP("FuncDef", DEBUG_BEGIN);
     last_ins_is_ret = false;

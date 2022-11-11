@@ -2,7 +2,7 @@
 
 BTypeAST::BTypeAST(std::string __type__) { type = __type__; };
 BTypeAST::BTypeAST(){};
-void BTypeAST::Dump(int ctl = 0)
+void BTypeAST::Dump(int ctl)
 {
     PRINT_DUMP("BType", DEBUG_BEGIN);
     if (type == "int")

@@ -3,7 +3,15 @@
 
 #include "Base.h"
 #include "FuncType.h"
+#include "FuncFParam.h"
 #include "FuncFParams.h"
+#include "SpaceNeeded.h"
+#include <map>
+#include <string>
+
+extern bool last_ins_is_ret;
+extern SymbolTableTree symbol_table_tree;
+extern std::map<std::string, SpaceNeeded> map_space_needed_for_function;
 
 class FuncDefAST : public BaseAST
 {

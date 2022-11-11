@@ -3,6 +3,13 @@
 
 #include "Base.h"
 #include "Exp.h"
+#include "SymbolTable.h"
+#include "SpaceNeeded.h"
+#include <vector>
+#include <string>
+
+extern std::string k_str;
+extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
 
 class FuncRParamsAST : public BaseAST
 {

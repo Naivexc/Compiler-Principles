@@ -2,6 +2,14 @@
 #define BLOCK_ITEM_H
 
 #include "Base.h"
+#include <memory>
+#include <string>
+
+extern bool last_ins_is_ret;
+extern std::string k_str;
+extern int32_t unused_koopa_label_count;
+
+extern std::string itostr(int num);
 
 class BlockItemAST : public BaseAST
 {

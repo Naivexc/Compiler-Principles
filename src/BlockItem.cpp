@@ -1,6 +1,6 @@
 #include "BlockItem.h"
 
-void BlockItemAST::Dump(int ctl = 0)
+void BlockItemAST::Dump(int ctl)
 {
     PRINT_DUMP("BlockItem", DEBUG_BEGIN);
     if (last_ins_is_ret == true)

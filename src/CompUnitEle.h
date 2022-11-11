@@ -2,6 +2,7 @@
 #define COMP_UNIT_ELE_H
 
 #include "Base.h"
+#include <memory>
 
 class CompUnitEleCase0
 {

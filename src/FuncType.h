@@ -3,6 +3,8 @@
 
 #include "Base.h"
 
+extern std::string k_str;
+
 class FuncTypeAST : public BaseTypeAST
 {
 public:

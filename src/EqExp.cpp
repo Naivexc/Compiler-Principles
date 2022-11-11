@@ -1,6 +1,6 @@
 #include "EqExp.h"
 
-void EqExpAST::Dump(int ctl = 0)
+void EqExpAST::Dump(int ctl)
 {
     PRINT_DUMP("EqExp", DEBUG_BEGIN);
     switch (tag)

@@ -2,7 +2,7 @@
 #include "Debug.h"
 #include "SymbolTable.h"
 extern SymbolTable *cur_symbol_table;
-void LValAST::Dump(int ctl = 0)
+void LValAST::Dump(int ctl)
 {
 
     PRINT_DUMP("LVal", DEBUG_BEGIN);

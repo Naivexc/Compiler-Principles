@@ -1,7 +1,18 @@
 #ifndef STMT_H
 #define STMT_H
+#include "Base.h"
+#include "SpaceNeeded.h"
+#include "SymbolTable.h"
+#include <memory>
+#include <map>
 
-#include "ast.h"
+extern SymbolTable *cur_symbol_table;
+extern SymbolTableTree symbol_table_tree;
+extern std::string itostr(int num);
+extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
+extern int32_t return_type_space(std::string type);
+extern int32_t unused_koopa_label_count;
+extern bool last_ins_is_ret;
 
 class StmtCase0 // lval=exp;
 {

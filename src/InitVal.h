@@ -1,7 +1,11 @@
 #ifndef INIT_VAL_H
 #define INIT_VAL_H
 
-#include "ast.h"
+#include "Base.h"
+#include "CalData.h"
+#include <memory>
+#include <cassert>
+#include <vector>
 
 class InitValCase0
 {

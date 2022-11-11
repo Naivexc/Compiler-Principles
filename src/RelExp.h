@@ -1,7 +1,9 @@
 #ifndef REL_EXP_H
 #define REL_EXP_H
 
-#include "ast.h"
+#include "Base.h"
+#include <memory>
+#include <cassert>
 
 class RelExpCase0
 {

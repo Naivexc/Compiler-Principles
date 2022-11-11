@@ -1,6 +1,7 @@
 #include "ConstInitVal.h"
+#include <cassert>
 
-void ConstInitValAST::Dump(int ctl = 0)
+void ConstInitValAST::Dump(int ctl)
 {
     PRINT_DUMP("ConstInitVal", DEBUG_BEGIN);
     switch (tag)

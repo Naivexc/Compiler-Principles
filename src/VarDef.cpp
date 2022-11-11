@@ -35,7 +35,6 @@ void VarDefAST::InitGlobalArrayInKoopa(int dim)
     switch (tag)
     {
     case (0):
-        // tag==0??????,???????koopa?��????
         break;
     case (1):
     {
@@ -105,7 +104,7 @@ void VarDefAST::InitLocalArrayInKoopa(int dim, std::string str_src)
         assert(false);
     }
 }
-void VarDefAST::Dump(int ctl = 0)
+void VarDefAST::Dump(int ctl)
 {
     PRINT_DUMP("ConstDef", DEBUG_BEGIN);
     switch (tag)

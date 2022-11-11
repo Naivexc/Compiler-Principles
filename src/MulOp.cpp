@@ -1,6 +1,6 @@
 #include "MulOp.h"
 
-void MulOpAST::Dump(int ctl = 0)
+void MulOpAST::Dump(int ctl)
 {
     PRINT_DUMP("MulOp", DEBUG_BEGIN);
     if (is_calculating_const_exp == false)

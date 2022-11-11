@@ -1,6 +1,6 @@
 #include "PrimaryExp.h"
 
-void PrimaryExpAST::Dump(int ctl = 0)
+void PrimaryExpAST::Dump(int ctl)
 {
     PRINT_DUMP("PrimaryExp", DEBUG_BEGIN);
     switch (tag)

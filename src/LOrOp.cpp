@@ -1,6 +1,6 @@
 #include "LOrOp.h"
 
-void LOrOpAST::Dump(int ctl = 0)
+void LOrOpAST::Dump(int ctl)
 {
     PRINT_DUMP("LOrOp", DEBUG_BEGIN);
     result.val = lhs.val || rhs.val;

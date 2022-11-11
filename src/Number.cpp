@@ -1,5 +1,5 @@
 #include "Number.h"
-void NumberAST::Dump(int ctl = 0)
+void NumberAST::Dump(int ctl)
 {
     PRINT_DUMP("Number", DEBUG_BEGIN);
     data.is_num = true;

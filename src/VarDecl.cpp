@@ -1,6 +1,6 @@
 #include "VarDecl.h"
 
-void VarDeclAST::Dump(int ctl = 0)
+void VarDeclAST::Dump(int ctl)
 {
     PRINT_DUMP("VarDecl", DEBUG_BEGIN);
     ++depth_dump;

@@ -1,6 +1,6 @@
 #include "MulExp.h"
 
-void MulExpAST::Dump(int ctl = 0)
+void MulExpAST::Dump(int ctl)
 {
     PRINT_DUMP("MulExp", DEBUG_BEGIN);
     switch (tag)

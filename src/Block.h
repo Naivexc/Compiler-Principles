@@ -2,6 +2,8 @@
 #define BLOCK_H
 
 #include "Base.h"
+#include <vector>
+#include <memory>
 
 class BlockAST : public BaseAST
 {

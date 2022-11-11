@@ -1,13 +1,22 @@
 #ifndef L_VAL_H
 #define L_VAL_H
 
-#include <string>
 #include "CalData.h"
+#include "SymbolTable.h"
+#include "Base.h"
+#include "SpaceNeeded.h"
 #include <vector>
 #include <memory>
-#include "Base.h"
+#include <string>
+#include <cassert>
+
 extern std::string k_str;
 extern int32_t unused_koopa_count;
+extern SymbolTableTree symbol_table_tree;
+extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
+
+extern std::string itostr(int num);
+extern int32_t return_type_space(std::string type);
 
 class LValCase0
 {

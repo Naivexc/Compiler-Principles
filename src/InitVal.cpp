@@ -1,6 +1,6 @@
 #include "InitVal.h"
 
-void InitValAST::Dump(int ctl = 0)
+void InitValAST::Dump(int ctl)
 {
     PRINT_DUMP("InitVal", DEBUG_BEGIN);
     ++depth_dump;

@@ -12,9 +12,9 @@ public:
     std::map<std::string, std::unique_ptr<Symbol>> map_symbol_table;
     std::vector<std::unique_ptr<SymbolTable>> vec_child_symbol_table;
     SymbolTable *AddSymbolTable();
-    auto find(std::string);
-    auto insert(std::string, Variate);
-    auto insert(std::string, Function);
+    auto find(std::string ident) -> std::map<std::string, std::unique_ptr<Symbol>>::iterator;
+    auto insert(std::string, Variate) -> std::pair<std::map<std::string, std::unique_ptr<Symbol>>::iterator, bool>;
+    auto insert(std::string, Function) -> std::pair<std::map<std::string, std::unique_ptr<Symbol>>::iterator, bool>;
     void print_symbol_table();
 };
 

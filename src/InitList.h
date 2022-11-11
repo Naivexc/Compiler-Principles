@@ -1,6 +1,8 @@
 #ifndef INIT_LIST_H
 #define INIT_LIST_H
 #include "CalData.h"
+#include <vector>
+#include <memory>
 
 class InitList;
 

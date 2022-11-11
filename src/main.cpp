@@ -8,43 +8,37 @@
 #include "koopa.h"
 #include "riscv.h"
 #include "SymbolTable.h"
+#include "SpaceNeeded.h"
 #include <map>
 #include <queue>
+#include <algorithm>
 extern FILE *yyout;
 int label_j_count = 0;
 
-#pragma region EXTERN
 extern FILE *yyin;
 extern int yyparse(std::unique_ptr<BaseAST> &ast);
 extern koopa_error_code_t koopa_parse_from_string(const char *str, koopa_program_t *program);
 extern bool str_is_same(const char *s1, const char *s2);
 extern int return_size_of_value(const koopa_raw_type_kind *const __kind__);
-std::string k_str = "decl @getint() : i32\n"
-					"decl @getch() : i32\n"
-					"decl @getarray(*i32) : i32\n"
-					"decl @putint(i32)\n"
-					"decl @putch(i32)\n"
-					"decl @putarray(i32, *i32)\n"
-					"decl @starttime()\n"
-					"decl @stoptime()\n\n";
-static std::string data_str = "";
-static std::string text_str = "";
+std::string data_str = "";
+std::string text_str = "";
 int32_t unused_koopa_count = 0;
-static int space_needed = 0;
-static bool debug = false;
-int32_t depth_dump = 0;
-static int depth_visit = 0;
-static int sp_dev = 0;
-static std::map<uint64_t, int> ins_map;
-static std::queue<std::string> global_var_name_queue;
-static std::map<uint64_t, std::string> global_var_name_map;
-static void *slice_ptr;
+int space_needed = 0;
+bool debug = false;
+// int32_t depth_dump = 0;
+int depth_visit = 0;
+int sp_dev = 0;
+std::map<uint64_t, int> ins_map;
+std::queue<std::string> global_var_name_queue;
+std::map<uint64_t, std::string> global_var_name_map;
+SymbolTableTree symbol_table_tree;
+void *slice_ptr;
 bool is_calculating_const_exp;
-static bool cur_block_is_entry;
-static bool last_ins_is_ret;
+bool cur_block_is_entry;
+bool last_ins_is_ret;
 int32_t unused_koopa_var_count;
-static int unused_koopa_label_count;
-static int unused_riscv_label_count;
+int32_t unused_koopa_label_count;
+int unused_riscv_label_count;
 SymbolTable *cur_symbol_table;
 std::string op_name[] = {"NOT_EQ", "EQ", "GT", "LT", "GE", "LE", "ADD", "SUB", "MUL", "DIV", "MOD", "AND", "OR", "XOR", "SHL", "SHR", "SAR"};
 std::string reg_for_func_params[8] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
@@ -100,51 +94,14 @@ std::string itostr(int num)
 	}
 	return str;
 }
-int strtoi(std::string str)
-{
-	int s = 1;
-	int i = 0;
-	int val = 0;
-	if (str[0] == '-')
-	{
-		s = -1;
-		i = 1;
-	}
-	while (str[i] != '\0')
-	{
-		val *= 10;
-		val += (str[i] - '0');
-		++i;
-	}
-	val *= s;
-	return val;
-}
-int return_type_space(std::string type)
+int32_t return_type_space(std::string type)
 {
 	if (type == "int")
 		return 4;
 	assert(false);
 }
-bool str_is_same(const char *s1, const char *s2)
-{
-	int pos = 0;
-	while (s1[pos] != '\0' && s2[pos] != '\0')
-	{
-		if (s1[pos] != s2[pos])
-			return false;
-		++pos;
-	}
-	if (s1[pos] == '\0' && s2[pos] == '\0')
-		return true;
-	else
-		return false;
-}
 std::map<std::string, SpaceNeeded> map_space_needed_for_function;
 std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
-int max_int(int x, int y)
-{
-	return x >= y ? x : y;
-}
 void ConstInitValInit(std::vector<std::unique_ptr<BaseExpAST>>::iterator iter_begin, std::vector<std::unique_ptr<BaseExpAST>>::iterator iter_end, InitList *civ)
 {
 	int arr_len = (*iter_begin)->data.val;
@@ -169,12 +126,9 @@ void generate_raw_program(koopa_raw_program_t &raw, koopa_raw_program_builder_t 
 {
 	koopa_program_t program;
 	koopa_error_code_t ret = koopa_parse_from_string(k_str.c_str(), &program);
-	assert(ret == KOOPA_EC_SUCCESS); // ȷ������ʱû�г���
-	// ����һ�� raw program builder, �������� raw program
+	assert(ret == KOOPA_EC_SUCCESS);
 	builder = koopa_new_raw_program_builder();
-	// �� Koopa IR ����ת��Ϊ raw program
 	raw = koopa_build_raw_program(builder, program);
-	// �ͷ� Koopa IR ����ռ�õ��ڴ�
 	koopa_delete_program(program);
 }
 #pragma region Visit
@@ -183,12 +137,8 @@ void generate_raw_program(koopa_raw_program_t &raw, koopa_raw_program_builder_t 
 
 void Visit(const koopa_raw_program_t &program)
 {
-	// ִ��һЩ�����ı�Ҫ����
-
-	// ��������ȫ�ֱ���
 	++depth_visit;
 	Visit(program.values);
-	// �������к���
 	--depth_visit;
 	++depth_visit;
 	Visit(program.funcs);
@@ -205,29 +155,24 @@ void Visit(const koopa_raw_slice_t &slice)
 	{
 		auto ptr = slice.buffer[i];
 		slice_ptr = const_cast<void *>(ptr);
-		// ���� slice �� kind ������ ptr ��������Ԫ��
 		switch (slice.kind)
 		{
 		case KOOPA_RSIK_FUNCTION:
-			// ���ʺ���
 			++depth_visit;
 			Visit(reinterpret_cast<koopa_raw_function_t>(ptr));
 			--depth_visit;
 			break;
 		case KOOPA_RSIK_BASIC_BLOCK:
-			// ���ʻ�����
 			++depth_visit;
 			Visit(reinterpret_cast<koopa_raw_basic_block_t>(ptr));
 			--depth_visit;
 			break;
 		case KOOPA_RSIK_VALUE:
-			// ����ָ��
 			++depth_visit;
 			Visit(reinterpret_cast<koopa_raw_value_t>(ptr));
 			--depth_visit;
 			break;
 		default:
-			// ������ʱ����������������, ���ǲ��������κδ���
 			assert(false);
 		}
 	}
@@ -243,17 +188,16 @@ void Visit(const koopa_raw_function_t &func)
 		return;
 
 	cur_map_iter_for_func_space_needed = map_space_needed_for_function.find(func->name);
-	sp_dev = cur_map_iter_for_func_space_needed->second.params_needed; //����ÿ������ʱ�Ƚ�ƫ������0
+	sp_dev = cur_map_iter_for_func_space_needed->second.params_needed;
 	if (cur_map_iter_for_func_space_needed == map_space_needed_for_function.end())
 		assert(false);
 	fprintf(yyout, "  .text\n");
-	fprintf(yyout, "  .globl %s\n", func->name + 1); //+1����Ϊ��һ���ַ���@
+	fprintf(yyout, "  .globl %s\n", func->name + 1);
 	fprintf(yyout, "%s:\n", func->name + 1);
 	if (cur_map_iter_for_func_space_needed->second.total_needed > 0)
 		ADDI("sp", "sp", -cur_map_iter_for_func_space_needed->second.total_needed);
 	if (cur_map_iter_for_func_space_needed->second.return_address_needed > 0)
 		SW("ra", cur_map_iter_for_func_space_needed->second.total_needed - 4, "sp");
-	// �������л�����
 	++depth_visit;
 	Visit(func->bbs);
 	--depth_visit;
@@ -266,7 +210,7 @@ void Visit(const koopa_raw_function_t &func)
 
 void Visit(const koopa_raw_basic_block_t &bb)
 {
-	if (str_is_same(bb->name, "%entry") == false)
+	if (strcmp(bb->name, "%entry") != 0)
 		fprintf(yyout, "%s:\n", bb->name + 1);
 	++depth_visit;
 	Visit(bb->insts);
@@ -279,27 +223,24 @@ void Visit(const koopa_raw_basic_block_t &bb)
 
 void Visit(const koopa_raw_value_t &value)
 {
-	// ����ָ�������жϺ�����Ҫ��η���
 	const auto &kind = value->kind;
 	void *cur_slice_ptr = const_cast<void *>(slice_ptr);
 	switch (kind.tag)
 	{
 	case (KOOPA_RVT_RETURN):
 	{
-		// ���� return ָ��
 		++depth_visit;
 		Visit(kind.data.ret);
 		--depth_visit;
 		break;
 	}
 	case (KOOPA_RVT_INTEGER):
-		// ���� integer ָ��
-		{
-			++depth_visit;
-			Visit(kind.data.integer);
-			--depth_visit;
-			break;
-		}
+	{
+		++depth_visit;
+		Visit(kind.data.integer);
+		--depth_visit;
+		break;
+	}
 	case (KOOPA_RVT_BINARY):
 	{
 		++depth_visit;
@@ -416,7 +357,6 @@ void Visit(const koopa_raw_value_t &value)
 	}
 	default:
 	{
-		// ����������ʱ������
 		printf("%d\n", kind.tag);
 		assert(false);
 	}
@@ -492,10 +432,10 @@ void Visit(koopa_raw_return_t ret)
 
 void Visit(koopa_raw_binary_t binary)
 {
-	void *cur_slice_ptr = const_cast<void *>(slice_ptr); //��Visit���������ʵ�slice.buffer�еĵ�ַ
+	void *cur_slice_ptr = const_cast<void *>(slice_ptr);
 
-	auto lhs = binary.lhs; //��������
-	auto rhs = binary.rhs; //��������
+	auto lhs = binary.lhs;
+	auto rhs = binary.rhs;
 	int lhs_dev = -1, rhs_dev = -1;
 	DEBUG("binary");
 	switch (lhs->kind.tag)
@@ -1146,7 +1086,7 @@ int return_size_of_value(const koopa_raw_type_kind *const __kind__)
 
 #pragma region global_alloc
 
-void Visit(koopa_raw_aggregate_t aggregate) //��ʼ��
+void Visit(koopa_raw_aggregate_t aggregate)
 {
 	for (int i = 0; i < aggregate.elems.len; ++i)
 	{
@@ -1405,17 +1345,13 @@ void Visit(koopa_raw_get_elem_ptr_t get_elem_ptr)
 
 int main(int argc, const char *argv[])
 {
-	// ���������в���. ���Խű�/����ƽ̨Ҫ����ı������ܽ������²���:
-	// compiler ģʽ �����ļ� -o ����ļ�
 	assert(argc == 5);
 	auto mode = argv[1];
 	auto input = argv[2];
 	auto output = argv[4];
-	// �������ļ�, ����ָ�� lexer �ڽ�����ʱ���ȡ����ļ�
 	yyin = fopen(input, "r");
 	yyout = fopen(output, "w");
 	assert(yyin);
-	// ���� parser ����, parser �������һ������ lexer ���������ļ���
 	std::unique_ptr<BaseAST> ast;
 	auto ret = yyparse(ast);
 	assert(!ret);
@@ -1426,13 +1362,11 @@ int main(int argc, const char *argv[])
 	if (space_needed % 16 != 0)
 		space_needed = (space_needed - space_needed % 16) + 16;
 	printf("space_needed:%d\n", space_needed);
-	// ��������õ��� AST, ��ʵ���Ǹ��ַ���
-	// cout << k_str << '\n';//1
 	if (yyout == NULL)
 		assert(false);
-	if (str_is_same(mode, "-koopa"))
+	if (strcmp(mode, "-koopa") == 0)
 		fprintf(yyout, "%s", k_str.c_str()); // test 1
-	else if (str_is_same(mode, "-riscv"))
+	else if (strcmp(mode, "-riscv") == 0)
 	{
 		koopa_raw_program_builder_t builder;
 		koopa_raw_program_t raw;
@@ -1440,7 +1374,7 @@ int main(int argc, const char *argv[])
 		Visit(raw);
 		koopa_delete_raw_program_builder(builder);
 	}
-	else if (str_is_same(mode, "-perf"))
+	else if (strcmp(mode, "-perf") == 0)
 		return 0;
 	else
 		assert(false);

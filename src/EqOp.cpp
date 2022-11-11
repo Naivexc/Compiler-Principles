@@ -1,6 +1,6 @@
 #include "EqOp.h"
 
-void EqOpAST::Dump(int ctl = 0)
+void EqOpAST::Dump(int ctl)
 {
     int temp_val = 0;
     PRINT_DUMP("EqOp", DEBUG_BEGIN);

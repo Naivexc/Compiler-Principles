@@ -3,6 +3,20 @@
 
 #include "Debug.h"
 #include "SymbolTable.h"
+#include "ConstInitVal.h"
+#include "SpaceNeeded.h"
+#include <string>
+#include <queue>
+
+extern int32_t unused_koopa_count;
+extern SymbolTableTree symbol_table_tree;
+extern std::queue<std::string> global_var_name_queue;
+extern SymbolTable *cur_symbol_table;
+extern std::string k_str;
+extern std::map<std::string, SpaceNeeded>::iterator cur_map_iter_for_func_space_needed;
+
+extern int32_t return_type_space(std::string type);
+extern std::string itostr(int num);
 
 class ConstDefCase0
 {

@@ -1,6 +1,9 @@
 #include "Stmt.h"
+#include "LVal.h"
+#include "SymbolTable.h"
+#include <cassert>
 
-void StmtAST::Dump(int ctl = 0)
+void StmtAST::Dump(int ctl)
 {
     PRINT_DUMP("Stmt", DEBUG_BEGIN);
     switch (tag)

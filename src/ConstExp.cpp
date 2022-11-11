@@ -1,6 +1,6 @@
 #include "ConstExp.h"
 
-void ConstExpAST::Dump(int ctl = 0)
+void ConstExpAST::Dump(int ctl)
 {
     PRINT_DUMP("ConstExp", DEBUG_BEGIN);
     ++depth_dump;

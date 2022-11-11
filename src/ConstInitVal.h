@@ -1,7 +1,12 @@
 #ifndef CONST_INIT_VAL_H
 #define CONST_INIT_VAL_H
 
-#include "ast.h"
+#include "Base.h"
+#include "InitList.h"
+#include <memory>
+#include <vector>
+
+extern bool is_calculating_const_exp;
 
 class ConstInitValCase0
 {

@@ -1,6 +1,7 @@
 #include "CompUnitEle.h"
+#include <cassert>
 
-void CompUnitEle::Dump(int ctl = 0)
+void CompUnitEle::Dump(int ctl)
 {
     if (tag == 0)
         comp_unit_ele_union.comp_unit_ele_case_0->func_def->Dump();

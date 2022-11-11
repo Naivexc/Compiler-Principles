@@ -7,7 +7,7 @@ SymbolTable *SymbolTable::AddSymbolTable()
     vec_child_symbol_table.push_back(std::move(new_symbol_table));
     return vec_child_symbol_table.back().get();
 }
-auto SymbolTable::find(std::string ident)
+auto SymbolTable::find(std::string ident) -> std::map<std::string, std::unique_ptr<Symbol>>::iterator
 {
     auto iter = map_symbol_table.find(ident);
     if (iter == map_symbol_table.end())
@@ -23,10 +23,12 @@ auto SymbolTable::find(std::string ident)
     }
 }
 auto SymbolTable::insert(std::string __ident__, Variate __variate__)
+    -> std::pair<std::map<std::string, std::unique_ptr<Symbol>>::iterator, bool>
 {
     return map_symbol_table.insert(make_pair(__ident__, std::unique_ptr<Symbol>(new Symbol(__variate__))));
 }
 auto SymbolTable::insert(std::string __ident__, Function __function__)
+    -> std::pair<std::map<std::string, std::unique_ptr<Symbol>>::iterator, bool>
 {
     return map_symbol_table.insert(make_pair(__ident__, std::unique_ptr<Symbol>(new Symbol(__function__))));
 }
