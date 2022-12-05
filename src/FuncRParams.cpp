@@ -1,5 +1,7 @@
 #include "FuncRParams.h"
 
+extern int max_int(int x, int y);
+
 void FuncRParamsAST::Dump(int ctl)
 {
     if (ctl == 0)
@@ -18,7 +20,8 @@ void FuncRParamsAST::Dump(int ctl)
     }
     else
     {
-        cur_map_iter_for_func_space_needed->second.params_needed = std::max(static_cast<uint64_t>(cur_map_iter_for_func_space_needed->second.params_needed), (func_r_params.size() - 8) * 4);
+        cur_map_iter_for_func_space_needed->second.params_needed = std::max(cur_map_iter_for_func_space_needed->second.params_needed, static_cast<int32_t>((func_r_params.size() - 8) * 4));
+        // cur_map_iter_for_func_space_needed->second.params_needed = max_int(cur_map_iter_for_func_space_needed->second.params_needed, (func_r_params.size() - 8) * 4);
         if (func_r_params.empty())
             return;
         std::vector<ExpAST *>::iterator iter = func_r_params.begin();

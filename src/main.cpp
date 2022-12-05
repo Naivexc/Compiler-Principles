@@ -45,6 +45,12 @@ std::string reg_for_func_params[8] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", 
 ConstInitValAST ConstDefAST::zero_init = ConstInitValAST(TAG_0);
 InitValAST VarDefAST::zero_init = InitValAST(TAG_0);
 #pragma endregion EXTERN
+
+int max_int(int x, int y)
+{
+	return x >= y ? x : y;
+}
+
 void global_var_init()
 {
 	cur_block_is_entry = false;
@@ -70,7 +76,7 @@ void global_var_init()
  * @param num 准备转换的整数
  * @return 转换得到的字符串
  **/
-std::string itostr(int num)
+std::string itostr(int32_t num)
 {
 	if (num == 0)
 		return "0";
